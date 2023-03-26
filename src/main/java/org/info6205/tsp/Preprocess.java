@@ -4,17 +4,27 @@ import org.info6205.tsp.util.FileHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Preprocess {
+    private Map<Integer, String> nodeMap;
+    Preprocess() {
+        nodeMap = new HashMap<>();
+    }
 
     public void start(String fileName) {
         List<String> lines = readData(fileName);
         testLineRead(lines);
     }
 
+    public Map<Integer, String> getNodeMap() {
+        return nodeMap;
+    }
+
     private List<String> readData(String fileName) {
-        List<String> rawLines = null;
+        List<String> rawLines;
         FileHelper fh = new FileHelper();
         try {
             rawLines = fh.read(fileName);
@@ -29,6 +39,7 @@ public class Preprocess {
         rawLines.remove(0);
         for(String line: rawLines) {
             String[] words = line.split(",");
+            nodeMap.put(nodeNumber, words[0]);
             words[0] = nodeNumber++ + "";
             lines.add(String.join(",", words));
         }
