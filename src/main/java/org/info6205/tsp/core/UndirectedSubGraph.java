@@ -4,13 +4,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class UndirectedSubGraph<T extends Comparable<T>> extends UndirectedGraph{
+public class UndirectedSubGraph extends UndirectedGraph{
 
-    public UndirectedSubGraph(Set<T> vertices, Graph<T> graph){
+    public UndirectedSubGraph(Set vertices, Graph graph){
         this.edges = graph
                 .getAllEdges()
                 .stream()
-                .filter(e -> vertices.contains((T)e.getSource()) && vertices.contains((T)e.getDestination())).collect(Collectors.toSet());
+                .filter(e -> vertices.contains(e.getSource()) && vertices.contains(e.getDestination())).collect(Collectors.toSet());
         this.vertices = new HashSet(vertices);
     }
 

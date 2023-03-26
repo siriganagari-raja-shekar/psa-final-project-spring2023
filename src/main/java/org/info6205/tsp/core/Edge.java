@@ -1,24 +1,24 @@
 package org.info6205.tsp.core;
 
-public class Edge<T extends Comparable> implements Comparable<Edge>{
+public class Edge implements Comparable<Edge>{
 
-    private T source;
+    private Vertex source;
 
-    private T destination;
+    private Vertex destination;
 
     private double weight;
 
-    public Edge(T source, T destination, double weight) {
+    public Edge(Vertex source, Vertex destination, double weight) {
         this.source = source;
         this.destination = destination;
         this.weight = weight;
     }
 
-    public T getSource() {
+    public Vertex getSource() {
         return source;
     }
 
-    public T getDestination() {
+    public Vertex getDestination() {
         return destination;
     }
 

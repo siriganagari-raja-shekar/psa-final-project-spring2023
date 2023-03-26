@@ -3,9 +3,9 @@ package org.info6205.tsp.core;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class UndirectedGraph<T extends Comparable<T>> implements Graph<T>{
+public class UndirectedGraph implements Graph{
 
-    Set<T> vertices;
+    Set<Vertex> vertices;
     Set<Edge> edges;
 
     public UndirectedGraph(){
@@ -14,29 +14,29 @@ public class UndirectedGraph<T extends Comparable<T>> implements Graph<T>{
     }
 
     @Override
-    public boolean addVertex(T t) throws Exception{
-        if(isVertexAlreadyPresent(t))
+    public boolean addVertex(Vertex vertex) throws Exception{
+        if(isVertexAlreadyPresent(vertex))
             throw new Exception("Vertex already present in graph");
-        return vertices.add(t);
+        return vertices.add(vertex);
     }
 
     @Override
-    public boolean removeVertex(T t) throws Exception{
-        if(!isVertexAlreadyPresent(t))
+    public boolean removeVertex(Vertex vertex) throws Exception{
+        if(!isVertexAlreadyPresent(vertex))
             throw new Exception("Vertex not present in graph");
 
-        edges = edges.stream().filter(e -> ((T)e.getSource()).compareTo(t) != 0 && ((T)e.getDestination()).compareTo(t) != 0).collect(Collectors.toSet());
+        edges = edges.stream().filter(e -> !e.getSource().equals(vertex) && !e.getDestination().equals(vertex)).collect(Collectors.toSet());
 
-        return vertices.remove(t);
+        return vertices.remove(vertex);
     }
 
     @Override
-    public Set<T> getAllVertices() {
+    public Set<Vertex> getAllVertices() {
         return vertices;
     }
 
     @Override
-    public boolean addEdge(T sourceVertex, T destinationVertex, double cost) throws Exception{
+    public boolean addEdge(Vertex sourceVertex, Vertex destinationVertex, double cost) throws Exception{
         if(!isVertexAlreadyPresent(sourceVertex))
             throw new Exception("sourceVertex not present in graph");
         if(!isVertexAlreadyPresent(destinationVertex))
@@ -45,7 +45,7 @@ public class UndirectedGraph<T extends Comparable<T>> implements Graph<T>{
     }
 
     @Override
-    public boolean removeAllEdgesBetweenVertices(T sourceVertex, T destinationVertex) throws Exception{
+    public boolean removeAllEdgesBetweenVertices(Vertex sourceVertex, Vertex destinationVertex) throws Exception{
         if(!isVertexAlreadyPresent(sourceVertex))
             throw new Exception("sourceVertex not present in graph");
         if(!isVertexAlreadyPresent(destinationVertex))
@@ -54,15 +54,15 @@ public class UndirectedGraph<T extends Comparable<T>> implements Graph<T>{
     }
 
     @Override
-    public Set<Edge> getAllAdjacentEdgesOfVertex(T t) throws Exception{
-        if(!isVertexAlreadyPresent(t))
+    public Set<Edge> getAllAdjacentEdgesOfVertex(Vertex vertex) throws Exception{
+        if(!isVertexAlreadyPresent(vertex))
             throw new Exception("Vertex not present in graph");
 
-        return edges.stream().filter(e -> ((T)e.getSource()).equals(t) || ((T)e.getDestination()).equals(t)).collect(Collectors.toSet());
+        return edges.stream().filter(e -> ((Vertex)e.getSource()).equals(vertex) || ((Vertex)e.getDestination()).equals(vertex)).collect(Collectors.toSet());
     }
 
     @Override
-    public Set<Edge> getEdgesBetweenVertices(T sourceVertex, T destinationVertex) throws Exception{
+    public Set<Edge> getEdgesBetweenVertices(Vertex sourceVertex, Vertex destinationVertex) throws Exception{
 
         if(!isVertexAlreadyPresent(sourceVertex))
             throw new Exception("sourceVertex not present in graph");
@@ -71,8 +71,8 @@ public class UndirectedGraph<T extends Comparable<T>> implements Graph<T>{
 
         return edges.stream()
                 .filter(
-                        e -> (((T)e.getSource()).equals(sourceVertex) && ((T)e.getDestination()).equals(destinationVertex))
-                                || (((T)e.getDestination()).equals(sourceVertex) && ((T)e.getSource()).equals(destinationVertex))
+                        e -> ((e.getSource()).equals(sourceVertex) && (e.getDestination()).equals(destinationVertex))
+                                || ((e.getDestination()).equals(sourceVertex) && (e.getSource()).equals(destinationVertex))
                 ).collect(Collectors.toSet());
     }
 
@@ -81,7 +81,7 @@ public class UndirectedGraph<T extends Comparable<T>> implements Graph<T>{
         return edges;
     }
 
-    private boolean isVertexAlreadyPresent(T vertex) {
+    private boolean isVertexAlreadyPresent(Vertex vertex) {
         return vertices.contains(vertex);
     }
 
