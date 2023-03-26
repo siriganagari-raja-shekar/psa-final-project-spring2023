@@ -14,9 +14,9 @@ public class Preprocess {
         nodeMap = new HashMap<>();
     }
 
-    public void start(String fileName) {
-        List<String> lines = readData(fileName);
-        testLineRead(lines);
+    public List<String> start(String fileName) {
+        return readData(fileName);
+//        testLineRead(lines);
     }
 
     public Map<Integer, String> getNodeMap() {
