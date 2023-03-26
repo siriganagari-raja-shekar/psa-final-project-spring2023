@@ -17,13 +17,16 @@ public class Preprocess {
         List<String> rawLines = null;
         FileHelper fh = new FileHelper();
         try {
-            rawLines =  fh.read(fileName);
+            rawLines = fh.read(fileName);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         int nodeNumber = 1;
         List<String> lines = new ArrayList<>();
+
+        // Remove column headings
+        rawLines.remove(0);
         for(String line: rawLines) {
             String[] words = line.split(",");
             words[0] = nodeNumber++ + "";
