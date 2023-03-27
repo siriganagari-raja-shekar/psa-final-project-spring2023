@@ -7,8 +7,20 @@ import org.info6205.tsp.core.Vertex;
 
 import java.util.*;
 
+/**
+ * A greedy algorithm to get a perfect matching of a graph.
+ * This is not the best possible implementation for perfect matching
+ * but efficient implementations are out of scope for now
+ */
 public class GreedyPerfectMatching {
 
+    /**
+     * A greedy algorithm which sorts all the edges in the graph and
+     * finds out the perfect matching by choosing edges with least weight
+     * @param graph The graph for which perfect matching has to be found
+     * @return A graph containing a perfect matching (not minimum cost perfect matching)
+     * @throws Exception
+     */
     public static Graph getPerfectMatching(Graph graph) throws Exception{
         Graph resGraph = new UndirectedGraph();
         Set<Vertex> vertices = graph.getAllVertices();
