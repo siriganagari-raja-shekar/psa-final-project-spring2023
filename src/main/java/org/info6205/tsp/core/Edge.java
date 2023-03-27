@@ -1,5 +1,7 @@
 package org.info6205.tsp.core;
 
+import org.apache.lucene.util.SloppyMath;
+
 public class Edge implements Comparable<Edge>{
 
     private Vertex source;
@@ -17,7 +19,7 @@ public class Edge implements Comparable<Edge>{
     public Edge(Vertex source, Vertex destination) {
         this.source = source;
         this.destination = destination;
-        this.weight = calculateDistance();
+        this.weight = calculateDistanceInMeters();
     }
 
     public Vertex getSource() {
@@ -37,10 +39,13 @@ public class Edge implements Comparable<Edge>{
      *
      * @return Euclidean distance between source and destination
      */
-    private double calculateDistance(){
+    private double calculateEuclideanDistance(){
         return Math.hypot(destination.getXPos()-source.getXPos(),destination.getYPos()-source.getYPos());
     }
 
+    private double calculateDistanceInMeters(){
+        return SloppyMath.haversinMeters(source.getXPos(), source.getYPos(), destination.getXPos(), destination.getYPos());
+    }
     @Override
     public String toString() {
         return "Edge{" +
