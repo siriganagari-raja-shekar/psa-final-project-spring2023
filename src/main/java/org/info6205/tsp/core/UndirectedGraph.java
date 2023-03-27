@@ -69,6 +69,19 @@ public class UndirectedGraph implements Graph{
     }
 
     @Override
+    public void addExistingEdgesToGraph(List<Edge> edges) throws Exception {
+        for(Edge edge: edges){
+            Vertex sourceVertex = edge.getSource();
+            Vertex destinationVertex = edge.getDestination();
+            if(!isVertexAlreadyPresent(sourceVertex))
+                throw new Exception(sourceVertex + " not present in graph");
+            if(!isVertexAlreadyPresent(destinationVertex))
+                throw new Exception(destinationVertex + " not present in graph");
+            graph.get(sourceVertex).add(edge);
+        }
+    }
+
+    @Override
     public void removeAllEdgesBetweenVertices(Vertex sourceVertex, Vertex destinationVertex) throws Exception{
         if(!isVertexAlreadyPresent(sourceVertex))
             throw new Exception(sourceVertex + " not present in graph");

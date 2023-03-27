@@ -1,0 +1,45 @@
+package org.info6205.tsp.algorithm;
+
+import org.info6205.tsp.core.Edge;
+import org.info6205.tsp.core.Graph;
+import org.info6205.tsp.core.UndirectedGraph;
+import org.info6205.tsp.core.Vertex;
+
+import java.util.*;
+
+public class GreedyPerfectMatching {
+
+    public static Graph getPerfectMatching(Graph graph) throws Exception{
+        Graph resGraph = new UndirectedGraph();
+        Set<Vertex> vertices = graph.getAllVertices();
+
+        if(vertices.size()%2 != 0)
+            throw new Exception("Number of vertices is odd. Perfect matching not possible");
+        try{
+            for(Vertex v: graph.getAllVertices()){
+                resGraph.addVertex(v);
+            }
+            List<Edge> edges = new ArrayList<>(graph.getAllEdges());
+            Collections.sort(edges);
+            for (int i = 0; i < edges.size(); i++) {
+                System.out.println(edges.get(i));
+            }
+            Set<Vertex> visited = new HashSet<>();
+            for (int i = 0; i < edges.size() && visited.size() < vertices.size(); i++) {
+                Edge currEdge = edges.get(i);
+                if(!visited.contains(currEdge.getSource()) && !visited.contains(currEdge.getDestination())){
+                    visited.add(currEdge.getSource());
+                    visited.add(currEdge.getDestination());
+                    resGraph.addEdge(currEdge.getSource(), currEdge.getDestination());
+                }
+            }
+            if(visited.size() != vertices.size())
+                throw new Exception("Perfect matching not possible on this graph with current edge configuration");
+            return resGraph;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+}
