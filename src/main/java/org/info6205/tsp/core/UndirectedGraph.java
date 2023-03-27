@@ -16,14 +16,14 @@ public class UndirectedGraph implements Graph{
     @Override
     public boolean addVertex(Vertex vertex) throws Exception{
         if(isVertexAlreadyPresent(vertex))
-            throw new Exception("Vertex already present in graph");
+            throw new Exception(vertex + " already present in graph");
         return vertices.add(vertex);
     }
 
     @Override
     public boolean removeVertex(Vertex vertex) throws Exception{
         if(!isVertexAlreadyPresent(vertex))
-            throw new Exception("Vertex not present in graph");
+            throw new Exception(vertex + " not present in graph");
 
         edges = edges.stream().filter(e -> !e.getSource().equals(vertex) && !e.getDestination().equals(vertex)).collect(Collectors.toSet());
 
@@ -35,39 +35,66 @@ public class UndirectedGraph implements Graph{
         return vertices;
     }
 
+    /**
+     * Adds weighted edges to the graph. Weight is passed as a parameter
+     *
+     * @param sourceVertex Source vertex for the edge
+     * @param destinationVertex Destination vertex for the edge
+     * @param cost  Weight of the edge
+     * @return Returns true when edges gets added successfully
+     * @throws Exception Throws exception if source or destination vertices are not present
+     */
     @Override
     public boolean addEdge(Vertex sourceVertex, Vertex destinationVertex, double cost) throws Exception{
+        if(!isVertexAlreadyPresent(sourceVertex))
+            throw new Exception(sourceVertex + " not present in graph");
+        if(!isVertexAlreadyPresent(destinationVertex))
+            throw new Exception(destinationVertex + " not present in graph");
+        return edges.add(new Edge(sourceVertex, destinationVertex, cost));
+    }
+
+    /**
+     * Adds weighted edges to the graph, weight is Euclidean distance between the source
+     * and destination vertices which is calculated in Edge class
+     *
+     * @param sourceVertex Source vertex for the edge
+     * @param destinationVertex Destination vertex for the edge
+     * @return Returns true when edges gets added successfully
+     * @throws Exception Throws exception if source or destination vertices are not present
+     */
+    @Override
+    public boolean addEdge(Vertex sourceVertex, Vertex destinationVertex) throws Exception {
         if(!isVertexAlreadyPresent(sourceVertex))
             throw new Exception("sourceVertex not present in graph");
         if(!isVertexAlreadyPresent(destinationVertex))
             throw new Exception("destinationVertex not present in graph");
-        return edges.add(new Edge(sourceVertex, destinationVertex, cost));
+        return edges.add(new Edge(sourceVertex, destinationVertex));
     }
 
     @Override
     public boolean removeAllEdgesBetweenVertices(Vertex sourceVertex, Vertex destinationVertex) throws Exception{
         if(!isVertexAlreadyPresent(sourceVertex))
-            throw new Exception("sourceVertex not present in graph");
+            throw new Exception(sourceVertex + " not present in graph");
         if(!isVertexAlreadyPresent(destinationVertex))
-            throw new Exception("destinationVertex not present in graph");
+            throw new Exception(destinationVertex + " not present in graph");
         return edges.removeAll(getEdgesBetweenVertices(sourceVertex, destinationVertex));
     }
 
     @Override
     public Set<Edge> getAllAdjacentEdgesOfVertex(Vertex vertex) throws Exception{
         if(!isVertexAlreadyPresent(vertex))
-            throw new Exception("Vertex not present in graph");
+            throw new Exception(vertex + " not present in graph");
 
         return edges.stream().filter(e -> ((Vertex)e.getSource()).equals(vertex) || ((Vertex)e.getDestination()).equals(vertex)).collect(Collectors.toSet());
     }
 
+
     @Override
     public Set<Edge> getEdgesBetweenVertices(Vertex sourceVertex, Vertex destinationVertex) throws Exception{
-
         if(!isVertexAlreadyPresent(sourceVertex))
-            throw new Exception("sourceVertex not present in graph");
+            throw new Exception(sourceVertex + " not present in graph");
         if(!isVertexAlreadyPresent(destinationVertex))
-            throw new Exception("destinationVertex not present in graph");
+            throw new Exception(destinationVertex + " not present in graph");
 
         return edges.stream()
                 .filter(
@@ -82,7 +109,7 @@ public class UndirectedGraph implements Graph{
     }
 
     private boolean isVertexAlreadyPresent(Vertex vertex) {
-        return vertices.contains(vertex);
+        return vertices.contains(vertex) || vertices.stream().anyMatch(v -> v.equals(vertex));
     }
 
     @Override

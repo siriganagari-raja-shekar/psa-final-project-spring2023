@@ -14,6 +14,12 @@ public class Edge implements Comparable<Edge>{
         this.weight = weight;
     }
 
+    public Edge(Vertex source, Vertex destination) {
+        this.source = source;
+        this.destination = destination;
+        this.weight = calculateDistance();
+    }
+
     public Vertex getSource() {
         return source;
     }
@@ -24,6 +30,15 @@ public class Edge implements Comparable<Edge>{
 
     public double getWeight() {
         return weight;
+    }
+
+    /**
+     * Method to calculate Euclidean distance without overflow or underflow
+     *
+     * @return Euclidean distance between source and destination
+     */
+    private double calculateDistance(){
+        return Math.hypot(destination.getXPos()-source.getXPos(),destination.getYPos()-source.getYPos());
     }
 
     @Override

@@ -14,6 +14,8 @@ public interface Graph {
 
     public boolean addEdge(Vertex sourceVertex, Vertex destinationVertex, double cost) throws Exception;
 
+    public boolean addEdge(Vertex sourceVertex, Vertex destinationVertex) throws Exception;
+
     public boolean removeAllEdgesBetweenVertices(Vertex sourceVertex, Vertex destinationVertex) throws Exception;
 
     public Set<Edge> getAllAdjacentEdgesOfVertex(Vertex vertex) throws Exception;
