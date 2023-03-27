@@ -16,14 +16,14 @@ public class UndirectedGraph implements Graph{
     @Override
     public boolean addVertex(Vertex vertex) throws Exception{
         if(isVertexAlreadyPresent(vertex))
-            throw new Exception("Vertex already present in graph");
+            throw new Exception(vertex + " already present in graph");
         return vertices.add(vertex);
     }
 
     @Override
     public boolean removeVertex(Vertex vertex) throws Exception{
         if(!isVertexAlreadyPresent(vertex))
-            throw new Exception("Vertex not present in graph");
+            throw new Exception(vertex + " not present in graph");
 
         edges = edges.stream().filter(e -> !e.getSource().equals(vertex) && !e.getDestination().equals(vertex)).collect(Collectors.toSet());
 
@@ -47,9 +47,9 @@ public class UndirectedGraph implements Graph{
     @Override
     public boolean addEdge(Vertex sourceVertex, Vertex destinationVertex, double cost) throws Exception{
         if(!isVertexAlreadyPresent(sourceVertex))
-            throw new Exception("sourceVertex not present in graph");
+            throw new Exception(sourceVertex + " not present in graph");
         if(!isVertexAlreadyPresent(destinationVertex))
-            throw new Exception("destinationVertex not present in graph");
+            throw new Exception(destinationVertex + " not present in graph");
         return edges.add(new Edge(sourceVertex, destinationVertex, cost));
     }
 
@@ -74,16 +74,16 @@ public class UndirectedGraph implements Graph{
     @Override
     public boolean removeAllEdgesBetweenVertices(Vertex sourceVertex, Vertex destinationVertex) throws Exception{
         if(!isVertexAlreadyPresent(sourceVertex))
-            throw new Exception("sourceVertex not present in graph");
+            throw new Exception(sourceVertex + " not present in graph");
         if(!isVertexAlreadyPresent(destinationVertex))
-            throw new Exception("destinationVertex not present in graph");
+            throw new Exception(destinationVertex + " not present in graph");
         return edges.removeAll(getEdgesBetweenVertices(sourceVertex, destinationVertex));
     }
 
     @Override
     public Set<Edge> getAllAdjacentEdgesOfVertex(Vertex vertex) throws Exception{
         if(!isVertexAlreadyPresent(vertex))
-            throw new Exception("Vertex not present in graph");
+            throw new Exception(vertex + " not present in graph");
 
         return edges.stream().filter(e -> ((Vertex)e.getSource()).equals(vertex) || ((Vertex)e.getDestination()).equals(vertex)).collect(Collectors.toSet());
     }
@@ -91,11 +91,10 @@ public class UndirectedGraph implements Graph{
 
     @Override
     public Set<Edge> getEdgesBetweenVertices(Vertex sourceVertex, Vertex destinationVertex) throws Exception{
-
         if(!isVertexAlreadyPresent(sourceVertex))
-            throw new Exception("sourceVertex not present in graph");
+            throw new Exception(sourceVertex + " not present in graph");
         if(!isVertexAlreadyPresent(destinationVertex))
-            throw new Exception("destinationVertex not present in graph");
+            throw new Exception(destinationVertex + " not present in graph");
 
         return edges.stream()
                 .filter(
@@ -110,7 +109,7 @@ public class UndirectedGraph implements Graph{
     }
 
     private boolean isVertexAlreadyPresent(Vertex vertex) {
-        return vertices.contains(vertex);
+        return vertices.contains(vertex) || vertices.stream().anyMatch(v -> v.equals(vertex));
     }
 
     @Override
