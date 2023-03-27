@@ -17,6 +17,8 @@ public interface Graph {
 
     public void addEdge(Vertex sourceVertex, Vertex destinationVertex) throws Exception;
 
+    public void addExistingEdgesToGraph(List<Edge> edges) throws Exception;
+
     public void removeAllEdgesBetweenVertices(Vertex sourceVertex, Vertex destinationVertex) throws Exception;
 
     public Set<Edge> getAllAdjacentEdgesOfVertex(Vertex vertex) throws Exception;
@@ -24,4 +26,7 @@ public interface Graph {
     public Set<Edge> getEdgesBetweenVertices(Vertex sourceVertex, Vertex destinationVertex) throws Exception;
 
     public Set<Edge> getAllEdges();
+
+    public Set<Vertex> getOddDegreeVertices();
+
 }
