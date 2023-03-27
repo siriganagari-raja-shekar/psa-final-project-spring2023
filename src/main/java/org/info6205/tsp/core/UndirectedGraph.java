@@ -118,6 +118,11 @@ public class UndirectedGraph implements Graph{
         return graph.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
+    @Override
+    public Set<Vertex> getOddDegreeVertices() {
+        return graph.keySet().stream().filter(v -> graph.get(v).size() % 2 != 0).collect(Collectors.toSet());
+    }
+
     private boolean isVertexAlreadyPresent(Vertex vertex) {
         return graph.containsKey(vertex) || graph.keySet().stream().anyMatch(v -> v.equals(vertex));
     }
