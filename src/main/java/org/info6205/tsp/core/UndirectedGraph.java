@@ -69,6 +69,19 @@ public class UndirectedGraph implements Graph{
     }
 
     @Override
+    public void addExistingEdgesToGraph(List<Edge> edges) throws Exception {
+        for(Edge edge: edges){
+            Vertex sourceVertex = edge.getSource();
+            Vertex destinationVertex = edge.getDestination();
+            if(!isVertexAlreadyPresent(sourceVertex))
+                throw new Exception(sourceVertex + " not present in graph");
+            if(!isVertexAlreadyPresent(destinationVertex))
+                throw new Exception(destinationVertex + " not present in graph");
+            graph.get(sourceVertex).add(edge);
+        }
+    }
+
+    @Override
     public void removeAllEdgesBetweenVertices(Vertex sourceVertex, Vertex destinationVertex) throws Exception{
         if(!isVertexAlreadyPresent(sourceVertex))
             throw new Exception(sourceVertex + " not present in graph");
@@ -103,6 +116,11 @@ public class UndirectedGraph implements Graph{
     @Override
     public Set<Edge> getAllEdges() {
         return graph.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<Vertex> getOddDegreeVertices() {
+        return graph.keySet().stream().filter(v -> graph.get(v).size() % 2 != 0).collect(Collectors.toSet());
     }
 
     private boolean isVertexAlreadyPresent(Vertex vertex) {
