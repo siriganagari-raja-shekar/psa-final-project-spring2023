@@ -33,9 +33,6 @@ public class GreedyPerfectMatching {
             }
             List<Edge> edges = new ArrayList<>(graph.getAllEdges());
             Collections.sort(edges);
-            for (int i = 0; i < edges.size(); i++) {
-                System.out.println(edges.get(i));
-            }
             Set<Vertex> visited = new HashSet<>();
             for (int i = 0; i < edges.size() && visited.size() < vertices.size(); i++) {
                 Edge currEdge = edges.get(i);
