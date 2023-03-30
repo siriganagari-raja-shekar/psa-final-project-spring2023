@@ -1,4 +1,4 @@
-package org.info6205.tsp.util;
+package org.info6205.tsp.io;
 
 import java.io.*;
 import java.util.ArrayList;

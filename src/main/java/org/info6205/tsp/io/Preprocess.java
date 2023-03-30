@@ -1,6 +1,4 @@
-package org.info6205.tsp;
-
-import org.info6205.tsp.util.FileHelper;
+package org.info6205.tsp.io;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,7 +13,7 @@ import java.util.Map;
  */
 public class Preprocess {
     private Map<Integer, String> nodeMap;
-    Preprocess() {
+    public Preprocess() {
         nodeMap = new HashMap<>();
     }
 
@@ -60,7 +58,7 @@ public class Preprocess {
      * @return Substituted raw lines with simplified node id
      */
     private List<String> substituteNodeHash(List<String> rawLines) {
-        int nodeNumber = 1;
+        int nodeNumber = 0;
         List<String> lines = new ArrayList<>();
 
         // Remove column headings

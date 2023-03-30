@@ -1,11 +1,14 @@
 package org.info6205.tsp;
 
 import org.info6205.tsp.algorithm.GreedyPerfectMatching;
+import org.info6205.tsp.algorithm.HierholzerEulerianCircuit;
 import org.info6205.tsp.algorithm.MinimumSpanningTree;
 import org.info6205.tsp.core.Graph;
 import org.info6205.tsp.core.UndirectedGraph;
 import org.info6205.tsp.core.UndirectedSubGraph;
 import org.info6205.tsp.core.Vertex;
+import org.info6205.tsp.io.Preprocess;
+import org.info6205.tsp.util.GraphUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,14 +46,14 @@ public class TSPMain
                 }
             }
 
-            MinimumSpanningTree mst = new MinimumSpanningTree();
+            MinimumSpanningTree mst = new MinimumSpanningTree(graph);
 
-            Graph minimumSpanningTree = mst.getMinimumSpanningTree(graph, vertexList.get(0));
+            Graph minimumSpanningTree = mst.getMinimumSpanningTree();
 
-            System.out.println("Minimum spanning tree:");
-            System.out.println("No of vertices in minimum spanning tree: "+ minimumSpanningTree.getAllVertices().size());
-            System.out.println("No of edges in minimum spanning tree: " + minimumSpanningTree.getAllEdges().size());
-            System.out.println("No of odd degree vertices: " + minimumSpanningTree.getOddDegreeVertices().size());
+//            System.out.println("Minimum spanning tree:");
+//            System.out.println("No of vertices in minimum spanning tree: "+ minimumSpanningTree.getAllVertices().size());
+//            System.out.println("No of edges in minimum spanning tree: " + minimumSpanningTree.getAllEdges().size());
+//            System.out.println("No of odd degree vertices: " + minimumSpanningTree.getOddDegreeVertices().size());
 
             Graph subGraph = new UndirectedSubGraph(minimumSpanningTree.getOddDegreeVertices(), graph);
 
@@ -65,9 +68,16 @@ public class TSPMain
 
             minimumSpanningTree.addExistingEdgesToGraph(new ArrayList<>(minimumCostPerfectMatching.getAllEdges()));
 
-            System.out.println(minimumCostPerfectMatching);
-            System.out.println("Number of odd degree vertices: "+minimumSpanningTree.getOddDegreeVertices().size());
-
+            HierholzerEulerianCircuit hierholzerEulerianCircuit = new HierholzerEulerianCircuit(minimumSpanningTree);
+            List<Vertex> circuit = hierholzerEulerianCircuit.getEulerianCircuit();
+            for(Vertex v: circuit) System.out.print(v + " -- >");
+//            System.out.println(minimumCostPerfectMatching);
+//            System.out.println("Number of odd degree vertices: "+minimumSpanningTree.getOddDegreeVertices().size());
+            System.out.println("\n" + GraphUtil.getTotalCostOfTour(circuit));
+            circuit = GraphUtil.getTSPTour(circuit);
+            System.out.println(circuit);
+            System.out.println(circuit.size());
+            System.out.println(GraphUtil.getTotalCostOfTour(circuit));
         }
         catch (Exception e){
             e.printStackTrace();
