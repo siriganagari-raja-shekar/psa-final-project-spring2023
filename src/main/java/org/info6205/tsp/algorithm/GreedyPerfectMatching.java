@@ -15,13 +15,25 @@ import java.util.*;
 public class GreedyPerfectMatching {
 
     /**
+     * Graph for which perfect matching has to be generated
+     */
+    Graph graph;
+
+    /**
+     * Parameterized constructor for GreedyPerfectMatching
+     * @param graph Initial graph for which perfect matching has to be generated
+     */
+    public GreedyPerfectMatching(Graph graph) {
+        this.graph = graph;
+    }
+
+    /**
      * A greedy algorithm which sorts all the edges in the graph and
      * finds out the perfect matching by choosing edges with least weight
-     * @param graph The graph for which perfect matching has to be found
      * @return A graph containing a perfect matching (not minimum cost perfect matching)
      * @throws Exception
      */
-    public static Graph getPerfectMatching(Graph graph) throws Exception{
+    public Graph getPerfectMatching() throws Exception{
         Graph resGraph = new UndirectedGraph();
         Set<Vertex> vertices = graph.getAllVertices();
 
