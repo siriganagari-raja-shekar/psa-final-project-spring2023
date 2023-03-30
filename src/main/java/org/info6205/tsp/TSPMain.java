@@ -1,8 +1,10 @@
 package org.info6205.tsp;
 
 import org.info6205.tsp.algorithm.GreedyPerfectMatching;
+import org.info6205.tsp.algorithm.MinimumSpanningTree;
 import org.info6205.tsp.core.Graph;
 import org.info6205.tsp.core.UndirectedGraph;
+import org.info6205.tsp.core.UndirectedSubGraph;
 import org.info6205.tsp.core.Vertex;
 
 import java.util.ArrayList;
@@ -21,7 +23,7 @@ public class TSPMain
 
         long startTime = System.nanoTime();
         Preprocess preprocess = new Preprocess();
-        List<String> lines = preprocess.start("sample.csv");
+        List<String> lines = preprocess.start("crimeSample.csv");
 
         Graph graph = new UndirectedGraph();
 
@@ -40,12 +42,31 @@ public class TSPMain
                     graph.addEdge(a, b);
                 }
             }
-//
-            Graph minimumCostPerfectMatching = GreedyPerfectMatching.getPerfectMatching(graph);
+
+            MinimumSpanningTree mst = new MinimumSpanningTree();
+
+            Graph minimumSpanningTree = mst.getMinimumSpanningTree(graph, vertexList.get(0));
+
+            System.out.println("Minimum spanning tree:");
+            System.out.println("No of vertices in minimum spanning tree: "+ minimumSpanningTree.getAllVertices().size());
+            System.out.println("No of edges in minimum spanning tree: " + minimumSpanningTree.getAllEdges().size());
+            System.out.println("No of odd degree vertices: " + minimumSpanningTree.getOddDegreeVertices().size());
+
+            Graph subGraph = new UndirectedSubGraph(minimumSpanningTree.getOddDegreeVertices(), graph);
+
+            GreedyPerfectMatching greedyPerfectMatching = new GreedyPerfectMatching(subGraph);
+
+            Graph minimumCostPerfectMatching = greedyPerfectMatching.getPerfectMatching();
+
+//            System.out.println(minimumCostPerfectMatching);
+//            System.out.println("No. of vertices: " + minimumCostPerfectMatching.getAllVertices().size());
+//            System.out.println("No. of edges: " + minimumCostPerfectMatching.getAllEdges().size());
+//            System.out.println("Cost: "+minimumCostPerfectMatching.getAllEdges().stream().mapToDouble(e -> e.getWeight()).reduce(0.0, (a,b)->a+b)/2);
+
+            minimumSpanningTree.addExistingEdgesToGraph(new ArrayList<>(minimumCostPerfectMatching.getAllEdges()));
+
             System.out.println(minimumCostPerfectMatching);
-            System.out.println("No. of vertices: " + minimumCostPerfectMatching.getAllVertices().size());
-            System.out.println("No. of edges: " + minimumCostPerfectMatching.getAllEdges().size());
-            System.out.println("Cost: "+minimumCostPerfectMatching.getAllEdges().stream().mapToDouble(e -> e.getWeight()).reduce(0.0, (a,b)->a+b)/2);
+            System.out.println("Number of odd degree vertices: "+minimumSpanningTree.getOddDegreeVertices().size());
 
         }
         catch (Exception e){
