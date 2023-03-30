@@ -8,21 +8,40 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Performs pre-processing activities:
+ *  1. Reads data from given CSV file
+ *  2. Replaces node hash id with an integer equivalent
+ */
 public class Preprocess {
     private Map<Integer, String> nodeMap;
     Preprocess() {
         nodeMap = new HashMap<>();
     }
 
+    /**
+     * Starts the pre-processing steps
+     * @param fileName Filename with extension
+     * @return The list of strings after pre-processing
+     */
     public List<String> start(String fileName) {
-        return readData(fileName);
-//        testLineRead(lines);
+        List<String> rawLines = readData(fileName);
+        return substituteNodeHash(rawLines);
     }
 
+    /**
+     * Returns a map of the simplified node id and hash
+     * @return Map of the simplified node id and hash
+     */
     public Map<Integer, String> getNodeMap() {
         return nodeMap;
     }
 
+    /**
+     * Reads data from the given filename
+     * @param fileName Filename with extension
+     * @return The list of strings obtained from the file
+     */
     private List<String> readData(String fileName) {
         List<String> rawLines;
         FileHelper fh = new FileHelper();
@@ -32,6 +51,15 @@ public class Preprocess {
             throw new RuntimeException(e);
         }
 
+        return rawLines;
+    }
+
+    /**
+     * The node hash obtained from file is substituted with simple integer values.
+     * @param rawLines Raw lines read from the file
+     * @return Substituted raw lines with simplified node id
+     */
+    private List<String> substituteNodeHash(List<String> rawLines) {
         int nodeNumber = 1;
         List<String> lines = new ArrayList<>();
 
@@ -45,14 +73,5 @@ public class Preprocess {
         }
 
         return lines;
-    }
-
-    private void testLineRead(List<String> lines) {
-        System.out.println("*".repeat(20));
-        System.out.println("Substituted lines:");
-        for (String line: lines) {
-            System.out.println(line);
-        }
-        System.out.println("*".repeat(20));
     }
 }
