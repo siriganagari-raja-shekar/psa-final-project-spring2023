@@ -46,7 +46,7 @@ public class MinimumSpanningTree {
         visited = new HashMap<>();
 
         //Get all vertices from the graph object
-        Set<Vertex> vertices= graph.getAllVertices();
+        List<Vertex> vertices= new ArrayList<>(graph.getAllVertices());
 
         //Random class to select the source starting point randomly
         this.start= pickArbitraryStart(vertices);
@@ -118,18 +118,10 @@ public class MinimumSpanningTree {
      * @param vertices All vertices of a graph
      * @return returns a random start vertex
      */
-    private Vertex pickArbitraryStart(final Set<Vertex> vertices){
-        Vertex start=null;
+    private Vertex pickArbitraryStart(final List<Vertex> vertices){
         Random rand= new Random();
         int i= rand.nextInt(vertices.size());
-        int c=0;
-        for(Vertex v: vertices){
-            if(i == c) {
-                start = v;
-            }
-            c++;
-        }
-        return start;
+        return vertices.get(i);
     }
 
 }
