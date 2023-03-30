@@ -43,9 +43,9 @@ public class TSPMain
                 }
             }
 
-            MinimumSpanningTree mst = new MinimumSpanningTree();
+            MinimumSpanningTree mst = new MinimumSpanningTree(graph);
 
-            Graph minimumSpanningTree = mst.getMinimumSpanningTree(graph, vertexList.get(0));
+            Graph minimumSpanningTree = mst.getMinimumSpanningTree();
 
             System.out.println("Minimum spanning tree:");
             System.out.println("No of vertices in minimum spanning tree: "+ minimumSpanningTree.getAllVertices().size());
