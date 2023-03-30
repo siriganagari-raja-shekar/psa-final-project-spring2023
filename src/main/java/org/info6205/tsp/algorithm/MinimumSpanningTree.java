@@ -24,42 +24,50 @@ public class MinimumSpanningTree {
     private Graph mst;
 
     /**
-     * Start vertex for the MST
+     * Graph object for which MST needs to be generated
      */
-    Vertex start = null;
+    private Graph graph;
 
     /**
-     * Method creates a minimum spanning tree from the provided undirected graph
-     * @param graph Undirected graph of TSP
-     * @return Returns the MST graph
-     * @throws Exception
+     * Start vertex for the MST
      */
-    public Graph getMinimumSpanningTree(Graph graph) throws Exception {
+    private Vertex start = null;
+
+    /**
+     * Constructor to initialize the MST class with the Graph object
+     * @param graph Graph object for which MST needs to be generated
+     */
+    public MinimumSpanningTree(Graph graph) throws Exception {
+        //Initialize the graph object
+        this.graph = graph;
         //Initialize the pq, mst and visited boolean map
         mst = new UndirectedGraph();
         pq= new PriorityQueue<>(Comparator.comparingDouble(Edge::getWeight));
         visited = new HashMap<>();
 
-        //Get all vertices from the graph
+        //Get all vertices from the graph object
         Set<Vertex> vertices= graph.getAllVertices();
 
         //Random class to select the source starting point randomly
-        Random rand= new Random();
+        this.start= pickArbitraryStart(vertices);
 
         //Iterate over all the vertices in the graph and store them in visited hashmap as unvisited
         for(Vertex v: vertices){
-            //Arbitrarily select the v as starting point for the MST
-            if(start == null && rand.nextBoolean()) {
-                start = v;
-                System.out.println("in arb");
-            }
             //Add the vertex v in visited set and set the value to false
             visited.put(v, false);
             //Add the vertex v in the MST
             mst.addVertex(v);
         }
+    }
+
+    /**
+     * Method creates a minimum spanning tree from the provided undirected graph
+     * @return Returns the MST graph
+     * @throws Exception
+     */
+    public Graph getMinimumSpanningTree() throws Exception {
         //Visit the initial vertex and add all adjacent vertices in the pq
-        visit(graph, start);
+        visit(this.start);
 
         //Iterate over all the edges in the min heap and process all adjacent vertices in sequence
         while(!pq.isEmpty()){
@@ -75,25 +83,24 @@ public class MinimumSpanningTree {
 
             //Visit the remaining vertex if not visited yet
             if(!visited.get(v1))
-                visit(graph, v1);
+                visit(v1);
             if(!visited.get(v2))
-                visit(graph, v2);
+                visit(v2);
         }
         return mst;
     }
 
     /**
      * Method to visit the vertex v and add it's adjacent vertices in the minimum priority queue
-     * @param graph Graph of TSP
      * @param v vertex which should be visited
      * @throws Exception
      */
-    private void visit(Graph graph, Vertex v) throws Exception {
+    private void visit(Vertex v) throws Exception {
         //Mark the vertex as visited
         visited.put(v, true);
 
         //Get and iterate over all adjacent edges connected to v
-        for(Edge e: graph.getAllAdjacentEdgesOfVertex(v)){
+        for(Edge e: this.graph.getAllAdjacentEdgesOfVertex(v)){
             //Check if the v is source or destination of the edge, and
             //add unvisited vertex accordingly to the pq
             if(e.getSource() == v){
@@ -105,4 +112,24 @@ public class MinimumSpanningTree {
             }
         }
     }
+
+    /**
+     * Method to pick arbitrary vertex as a starting point from a graph
+     * @param vertices All vertices of a graph
+     * @return returns a random start vertex
+     */
+    private Vertex pickArbitraryStart(final Set<Vertex> vertices){
+        Vertex start=null;
+        Random rand= new Random();
+        int i= rand.nextInt(vertices.size());
+        int c=0;
+        for(Vertex v: vertices){
+            if(i == c) {
+                start = v;
+            }
+            c++;
+        }
+        return start;
+    }
+
 }

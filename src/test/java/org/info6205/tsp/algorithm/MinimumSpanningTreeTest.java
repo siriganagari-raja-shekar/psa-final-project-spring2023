@@ -32,8 +32,8 @@ public class MinimumSpanningTreeTest {
             g.addEdge(v3, v5, 6);
             g.addEdge(v4, v5, 2);
 
-            MinimumSpanningTree mstclass= new MinimumSpanningTree();
-            Graph mst= mstclass.getMinimumSpanningTree(g);
+            MinimumSpanningTree mstclass= new MinimumSpanningTree(g);
+            Graph mst= mstclass.getMinimumSpanningTree();
             System.out.println(mst.toString());
             int noOfVertices= mst.getAllVertices().size();
             int noOfEdges= mst.getAllEdges().size();
