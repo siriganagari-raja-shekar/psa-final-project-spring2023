@@ -1,10 +1,7 @@
 package org.info6205.tsp;
 
+import org.info6205.tsp.io.Preprocess;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.*;
 
