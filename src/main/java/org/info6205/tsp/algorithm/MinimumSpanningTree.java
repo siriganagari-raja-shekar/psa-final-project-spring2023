@@ -24,26 +24,42 @@ public class MinimumSpanningTree {
     private Graph mst;
 
     /**
+     * Start vertex for the MST
+     */
+    Vertex start = null;
+
+    /**
      * Method creates a minimum spanning tree from the provided undirected graph
      * @param graph Undirected graph of TSP
-     * @param source Starting vertex in the MST
      * @return Returns the MST graph
      * @throws Exception
      */
-    public Graph getMinimumSpanningTree(Graph graph, Vertex source) throws Exception {
+    public Graph getMinimumSpanningTree(Graph graph) throws Exception {
         //Initialize the pq, mst and visited boolean map
         mst = new UndirectedGraph();
         pq= new PriorityQueue<>(Comparator.comparingDouble(Edge::getWeight));
         visited = new HashMap<>();
 
+        //Get all vertices from the graph
+        Set<Vertex> vertices= graph.getAllVertices();
+
+        //Random class to select the source starting point randomly
+        Random rand= new Random();
+
         //Iterate over all the vertices in the graph and store them in visited hashmap as unvisited
-        for(Vertex v: graph.getAllVertices()){
+        for(Vertex v: vertices){
+            //Arbitrarily select the v as starting point for the MST
+            if(start == null && rand.nextBoolean()) {
+                start = v;
+                System.out.println("in arb");
+            }
+            //Add the vertex v in visited set and set the value to false
             visited.put(v, false);
-            //Add all vertices in the MST
+            //Add the vertex v in the MST
             mst.addVertex(v);
         }
         //Visit the initial vertex and add all adjacent vertices in the pq
-        visit(graph, source);
+        visit(graph, start);
 
         //Iterate over all the edges in the min heap and process all adjacent vertices in sequence
         while(!pq.isEmpty()){

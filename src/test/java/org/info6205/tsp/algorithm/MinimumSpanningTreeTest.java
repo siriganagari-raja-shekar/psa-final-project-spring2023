@@ -33,7 +33,8 @@ public class MinimumSpanningTreeTest {
             g.addEdge(v4, v5, 2);
 
             MinimumSpanningTree mstclass= new MinimumSpanningTree();
-            Graph mst= mstclass.getMinimumSpanningTree(g, v1);
+            Graph mst= mstclass.getMinimumSpanningTree(g);
+            System.out.println(mst.toString());
             int noOfVertices= mst.getAllVertices().size();
             int noOfEdges= mst.getAllEdges().size();
             assertEquals("Checking number of edges are 8",8, noOfEdges);
