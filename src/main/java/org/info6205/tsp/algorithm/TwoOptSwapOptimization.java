@@ -3,6 +3,7 @@ package org.info6205.tsp.algorithm;
 import org.info6205.tsp.core.Vertex;
 import org.info6205.tsp.util.GraphUtil;
 
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,9 +67,10 @@ public class TwoOptSwapOptimization {
                     Vertex v4 = tour.get(j+1);
                     double costDelta = - GraphUtil.getDistanceBetweenVertices(v1,v2) - GraphUtil.getDistanceBetweenVertices(v3,v4)
                             + GraphUtil.getDistanceBetweenVertices(v1,v3) + GraphUtil.getDistanceBetweenVertices(v2,v4);
-                    if(costDelta < 0){
+                    if(costDelta < -1){
                         doTwoOptSwap(tour,i,j);
                         currentCost += costDelta;
+                        //System.out.println(currentCost);
                         improvementFound = true;
                     }
                 }
