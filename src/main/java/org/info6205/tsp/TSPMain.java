@@ -31,7 +31,7 @@ public class TSPMain
         try {
             for(String line: lines){
                 String[] lineSplit = line.split(",");
-                graph.addVertex(new Vertex(Long.parseLong(lineSplit[0]), Double.parseDouble(lineSplit[1]), Double.parseDouble(lineSplit[2])));
+                graph.addVertex(new Vertex(Long.parseLong(lineSplit[0]), Double.parseDouble(lineSplit[2]), Double.parseDouble(lineSplit[1])));
             }
 
             List<Vertex> vertexList = new ArrayList<>(graph.getAllVertices());
