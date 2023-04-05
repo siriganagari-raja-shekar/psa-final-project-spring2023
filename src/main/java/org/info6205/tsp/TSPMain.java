@@ -1,8 +1,6 @@
 package org.info6205.tsp;
 
-import org.info6205.tsp.algorithm.GreedyPerfectMatching;
-import org.info6205.tsp.algorithm.HierholzerEulerianCircuit;
-import org.info6205.tsp.algorithm.MinimumSpanningTree;
+import org.info6205.tsp.algorithm.*;
 import org.info6205.tsp.core.Graph;
 import org.info6205.tsp.core.UndirectedGraph;
 import org.info6205.tsp.core.UndirectedSubGraph;
@@ -33,7 +31,7 @@ public class TSPMain
         try {
             for(String line: lines){
                 String[] lineSplit = line.split(",");
-                graph.addVertex(new Vertex(Long.parseLong(lineSplit[0]), Double.parseDouble(lineSplit[1]), Double.parseDouble(lineSplit[2])));
+                graph.addVertex(new Vertex(Long.parseLong(lineSplit[0]), Double.parseDouble(lineSplit[2]), Double.parseDouble(lineSplit[1])));
             }
 
             List<Vertex> vertexList = new ArrayList<>(graph.getAllVertices());
@@ -46,46 +44,35 @@ public class TSPMain
                 }
             }
 
-            MinimumSpanningTree mst = new MinimumSpanningTree(graph);
+            ChristofidesAlgorithm christofidesAlgorithm = new ChristofidesAlgorithm(graph);
 
-            Graph minimumSpanningTree = mst.getMinimumSpanningTree();
+            List<Vertex> bestTourYet = null;
+            double bestCostYet = Double.MAX_VALUE;
+            for (int i = 0; i < 1000; i++) {
 
-//            System.out.println("Minimum spanning tree:");
-//            System.out.println("No of vertices in minimum spanning tree: "+ minimumSpanningTree.getAllVertices().size());
-//            System.out.println("No of edges in minimum spanning tree: " + minimumSpanningTree.getAllEdges().size());
-//            System.out.println("No of odd degree vertices: " + minimumSpanningTree.getOddDegreeVertices().size());
+                List<Vertex> tspTour = christofidesAlgorithm.generateTSPTour();
 
-            Graph subGraph = new UndirectedSubGraph(minimumSpanningTree.getOddDegreeVertices(), graph);
+                TwoOptSwapOptimization twoOptSwapOptimization = new TwoOptSwapOptimization(tspTour);
+                List<Vertex> optimizedTour = twoOptSwapOptimization.getOptimumTour(1);
 
-            GreedyPerfectMatching greedyPerfectMatching = new GreedyPerfectMatching(subGraph);
+                double currentCost = GraphUtil.getTotalCostOfTour(optimizedTour);
+                if(currentCost < bestCostYet){
+                    bestTourYet = tspTour;
+                    bestCostYet = currentCost;
+                }
+            }
 
-            Graph minimumCostPerfectMatching = greedyPerfectMatching.getPerfectMatching();
+            for(Vertex v: bestTourYet) System.out.print(v+"-->");
+            System.out.println();
+            System.out.println("Total cost of tour: " + bestCostYet);
 
-//            System.out.println(minimumCostPerfectMatching);
-//            System.out.println("No. of vertices: " + minimumCostPerfectMatching.getAllVertices().size());
-//            System.out.println("No. of edges: " + minimumCostPerfectMatching.getAllEdges().size());
-//            System.out.println("Cost: "+minimumCostPerfectMatching.getAllEdges().stream().mapToDouble(e -> e.getWeight()).reduce(0.0, (a,b)->a+b)/2);
-
-            minimumSpanningTree.addExistingEdgesToGraph(new ArrayList<>(minimumCostPerfectMatching.getAllEdges()));
-
-            HierholzerEulerianCircuit hierholzerEulerianCircuit = new HierholzerEulerianCircuit(minimumSpanningTree);
-            List<Vertex> circuit = hierholzerEulerianCircuit.getEulerianCircuit();
-            for(Vertex v: circuit) System.out.print(v + " -- >");
-//            System.out.println(minimumCostPerfectMatching);
-//            System.out.println("Number of odd degree vertices: "+minimumSpanningTree.getOddDegreeVertices().size());
-            System.out.println("\n" + GraphUtil.getTotalCostOfTour(circuit));
-            circuit = GraphUtil.getTSPTour(circuit);
-            System.out.println(circuit);
-            System.out.println(circuit.size());
-            System.out.println(GraphUtil.getTotalCostOfTour(circuit));
         }
         catch (Exception e){
             e.printStackTrace();
         }
         long endTime = System.nanoTime();
-        System.out.println((endTime-startTime)/Math.pow(10,9));
         System.out.println("*".repeat(5) + " Application has completed running " + "*".repeat(5));
-
+        System.out.println("Running time: " + (endTime-startTime)/Math.pow(10,9));
     }
 
     public static double calculateEuclidianDistance(Vertex a, Vertex b){
