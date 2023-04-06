@@ -29,7 +29,7 @@ public class Vertex{
     @Override
     public boolean equals(Object o){
         Vertex v = (Vertex) o;
-        return this.xPos == v.getXPos() && this.yPos == v.getYPos();
+        return this.getId() == v.getId();
     }
 
     @Override
