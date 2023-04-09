@@ -9,6 +9,7 @@ import org.info6205.tsp.io.Preprocess;
 import org.info6205.tsp.util.GraphUtil;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -48,23 +49,33 @@ public class TSPMain
 
             List<Vertex> bestTourYet = null;
             double bestCostYet = Double.MAX_VALUE;
-            for (int i = 0; i < 1000; i++) {
+            for (int i = 0; i < 100; i++) {
 
                 List<Vertex> tspTour = christofidesAlgorithm.generateTSPTour();
+//
+//                TwoOptSwapOptimization twoOptSwapOptimization = new TwoOptSwapOptimization(tspTour);
+//                List<Vertex> optimizedTwoOptTour = twoOptSwapOptimization.getOptimumTour();
 
-                TwoOptSwapOptimization twoOptSwapOptimization = new TwoOptSwapOptimization(tspTour);
-                List<Vertex> optimizedTour = twoOptSwapOptimization.getOptimumTour(1);
+                ThreeOptSwapOptimization threeOptSwapOptimization = new ThreeOptSwapOptimization(tspTour);
+                List<Vertex> optimizedThreeOptTour = threeOptSwapOptimization.getOptimumTour();
 
-                double currentCost = GraphUtil.getTotalCostOfTour(optimizedTour);
-                if(currentCost < bestCostYet){
-                    bestTourYet = tspTour;
-                    bestCostYet = currentCost;
+//                double twoOptTourCost = GraphUtil.getTotalCostOfTour(optimizedTwoOptTour);
+                double threeOptTourCost = GraphUtil.getTotalCostOfTour(optimizedThreeOptTour);
+//                System.out.println("Two opt tour cost: " + twoOptTourCost);
+                System.out.println("Three opt tour cost: " + threeOptTourCost);
+//                bestCostYet = twoOptTourCost < threeOptTourCost ? twoOptTourCost : threeOptTourCost;
+//                bestTourYet = twoOptTourCost < threeOptTourCost ? optimizedTwoOptTour : optimizedThreeOptTour;
+
+                if(bestCostYet > GraphUtil.getTotalCostOfTour(optimizedThreeOptTour)){
+                    bestTourYet = optimizedThreeOptTour;
+                    bestCostYet = GraphUtil.getTotalCostOfTour(optimizedThreeOptTour);
                 }
             }
 
             for(Vertex v: bestTourYet) System.out.print(v+"-->");
             System.out.println();
             System.out.println("Total cost of tour: " + bestCostYet);
+            System.out.println(new HashSet<Vertex>(bestTourYet).size());
 
         }
         catch (Exception e){

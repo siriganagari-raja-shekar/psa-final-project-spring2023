@@ -36,16 +36,12 @@ public class TwoOptSwapOptimization {
 
 
     /**
-     * Runs optimization on the tour for the number of times specified by the user
-     * @param passes Number of passes to run the optimization for
+     * Runs optimization on the current tour
      * @return Optimized tour containing list of vertices
      */
-    public List<Vertex> getOptimumTour(int passes){
+    public List<Vertex> getOptimumTour(){
 
-        for (int i = 0; i < passes; i++) {
-            optimize();
-        }
-
+        optimize();
         return new ArrayList<>(tour);
     }
 
