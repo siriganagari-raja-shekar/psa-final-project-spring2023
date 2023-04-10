@@ -21,24 +21,7 @@ public class ChristofidesWithOptimizationTest {
 
         try{
             Preprocess preprocess = new Preprocess();
-            List<String> lines = preprocess.start("updatedCrimeSample.csv");
-
-            testGraph = new UndirectedGraph();
-
-            for (String line : lines) {
-                String[] lineSplit = line.split(",");
-                testGraph.addVertex(new Vertex(Long.parseLong(lineSplit[0]), Double.parseDouble(lineSplit[2]), Double.parseDouble(lineSplit[1])));
-            }
-
-            List<Vertex> vertexList = new ArrayList<>(testGraph.getAllVertices());
-
-            for (int i = 0; i < vertexList.size(); i++) {
-                for (int j = i + 1; j < vertexList.size(); j++) {
-                    Vertex a = vertexList.get(i);
-                    Vertex b = vertexList.get(j);
-                    testGraph.addEdge(a, b);
-                }
-            }
+            testGraph = preprocess.start("updatedCrimeSample.csv");
         }
         catch (Exception e){
             e.printStackTrace();
