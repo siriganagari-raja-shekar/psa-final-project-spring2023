@@ -1,66 +1,134 @@
 package org.info6205.tsp.optimizations;
 
-import org.info6205.tsp.algorithm.GreedyPerfectMatching;
-import org.info6205.tsp.algorithm.HierholzerEulerianCircuit;
-import org.info6205.tsp.algorithm.MinimumSpanningTree;
-import org.info6205.tsp.algorithm.TwoOptSwapOptimization;
+import org.info6205.tsp.algorithm.*;
 import org.info6205.tsp.core.Graph;
-import org.info6205.tsp.core.UndirectedGraph;
-import org.info6205.tsp.core.UndirectedSubGraph;
 import org.info6205.tsp.core.Vertex;
 import org.info6205.tsp.io.Preprocess;
 import org.info6205.tsp.util.GraphUtil;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 public class SimulatedAnnealingTest {
 
     @Test
-    public void testSAOptimization() {
+    public void test3AOptimization() {
+        System.out.println("*".repeat(5) + " Starting application " + "*".repeat(5));
+        long startTime = System.nanoTime();
         Preprocess preprocess = new Preprocess();
-        List<String> lines = preprocess.start("crimeSample.csv");
-
-        Graph graph = new UndirectedGraph();
 
         try {
-            for (String line : lines) {
-                String[] lineSplit = line.split(",");
-                graph.addVertex(new Vertex(Long.parseLong(lineSplit[0]), Double.parseDouble(lineSplit[1]), Double.parseDouble(lineSplit[2])));
-            }
+            Graph graph = preprocess.start("crimeSample.csv");
 
-            List<Vertex> vertexList = new ArrayList<>(graph.getAllVertices());
+            ChristofidesAlgorithm christofidesAlgorithm = new ChristofidesAlgorithm(graph);
 
-            for (int i = 0; i < vertexList.size(); i++) {
-                for (int j = i + 1; j < vertexList.size(); j++) {
-                    Vertex a = vertexList.get(i);
-                    Vertex b = vertexList.get(j);
-                    graph.addEdge(a, b);
+            List<Vertex> bestTourYet = null;
+            double bestCostYet = Double.MAX_VALUE;
+            for (int i = 0; i < 100; i++) {
+                List<Vertex> tspTour = christofidesAlgorithm.generateTSPTour();
+                ThreeOptSwapOptimization threeOptSwapOptimization = new ThreeOptSwapOptimization(tspTour);
+                List<Vertex> optimizedThreeOptTour = threeOptSwapOptimization.getOptimumTour();
+                double threeOptTourCost = GraphUtil.getTotalCostOfTour(optimizedThreeOptTour);
+                if(bestCostYet > GraphUtil.getTotalCostOfTour(optimizedThreeOptTour)){
+                    bestTourYet = optimizedThreeOptTour;
+                    bestCostYet = GraphUtil.getTotalCostOfTour(optimizedThreeOptTour);
                 }
             }
 
-            Graph minimumSpanningTree = new MinimumSpanningTree(graph).getMinimumSpanningTree();
-            Graph subGraph = new UndirectedSubGraph(minimumSpanningTree.getOddDegreeVertices(), graph);
-            Graph minimumCostPerfectMatching = new GreedyPerfectMatching(subGraph).getPerfectMatching();
-            minimumSpanningTree.addExistingEdgesToGraph(new ArrayList<>(minimumCostPerfectMatching.getAllEdges()));
-            HierholzerEulerianCircuit hierholzerEulerianCircuit = new HierholzerEulerianCircuit(minimumSpanningTree);
-            List<Vertex> circuit = hierholzerEulerianCircuit.getEulerianCircuit();
-            for (Vertex v : circuit) System.out.print(v + " -- >");
-            System.out.println("\n" + GraphUtil.getTotalCostOfTour(circuit));
-            List<Vertex> TSPTour = GraphUtil.getTSPTour(circuit);
-            System.out.println("Cost without any optimization:\n"+GraphUtil.getTotalCostOfTour(TSPTour));
-            List<Vertex> simulatedTour = new SimulatedAnnealing(TSPTour, 100000, 100000, 0.85).optimize();
-            for (Vertex v : simulatedTour) System.out.print(v + " -- >");
-            System.out.println("\nCost after SA:\n"+GraphUtil.getTotalCostOfTour(simulatedTour));
+            for(Vertex v: bestTourYet) System.out.print(v+"-->");
+            System.out.println();
+            System.out.println("Total cost of tour: " + bestCostYet);
+            System.out.println(new HashSet<Vertex>(bestTourYet).size());
 
-            List<Vertex> twoOptTour = new TwoOptSwapOptimization(TSPTour).getOptimumTour(1000);
-            for (Vertex v : simulatedTour) System.out.print(v + " -- >");
-            System.out.println("\nCost after Two Opt:\n"+GraphUtil.getTotalCostOfTour(twoOptTour));
-
-        }catch (Exception e){
+        }
+        catch (Exception e){
             e.printStackTrace();
         }
+        long endTime = System.nanoTime();
+        System.out.println("*".repeat(5) + " Application has completed running " + "*".repeat(5));
+        System.out.println("Running time: " + (endTime-startTime)/Math.pow(10,9));
+    }
+
+    @Test
+    public void testWithBigDataSet(){
+        System.out.println("*".repeat(5) + " Starting application " + "*".repeat(5));
+        long startTime = System.nanoTime();
+        Preprocess preprocess = new Preprocess();
+
+        try {
+            Graph graph = preprocess.start("crimeSample.csv");
+            double best= Double.MAX_VALUE;
+            double avg= 0;
+            final double RUNS=100;
+            for(int s=0; s<RUNS; s++){
+                ChristofidesAlgorithm christofidesAlgorithm = new ChristofidesAlgorithm(graph);
+                List<Vertex> tspTour= christofidesAlgorithm.generateTSPTour();
+                System.out.println("TSP Tour s="+s);
+                SimulatedAnnealing saOptimization = new SimulatedAnnealing(tspTour, 1000000, 650, 0.99);
+                List<Vertex> saOptimizationTour= saOptimization.optimize();
+                double saCost= GraphUtil.getTotalCostOfTour(saOptimizationTour);
+                System.out.println("\tCost of SA Opt "+ saCost);
+                avg+=GraphUtil.getTotalCostOfTour(saOptimizationTour);
+                if( saCost < best){
+                    best = GraphUtil.getTotalCostOfTour(saOptimizationTour);
+                }
+            }
+            System.out.println("Best cost:"+ best);
+            System.out.println("Avg cost:"+ avg/RUNS);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        long endTime = System.nanoTime();
+        System.out.println("*".repeat(5) + " Application has completed running " + "*".repeat(5));
+        System.out.println("Running time: " + (endTime-startTime)/Math.pow(10,9));
+    }
+
+    @Test
+    public void competitionSAvs3A(){
+        System.out.println("*".repeat(5) + " Starting application " + "*".repeat(5));
+        long startTime = System.nanoTime();
+        Preprocess preprocess = new Preprocess();
+
+        try {
+            int saWinCount= 0;
+            int taWinCount= 0;
+            double maxCostDiff= 0;
+            Graph graph = preprocess.start("crimeSample.csv");
+            final double RUNS=100;
+            for(int s=0; s<RUNS; s++){
+                ChristofidesAlgorithm christofidesAlgorithm = new ChristofidesAlgorithm(graph);
+                List<Vertex> tspTour= christofidesAlgorithm.generateTSPTour();
+                System.out.println("TSP Tour s="+s);
+                SimulatedAnnealing saOptimization = new SimulatedAnnealing(tspTour, 1000000, 650, 0.99);
+                List<Vertex> saOptimizationTour= saOptimization.optimize();
+                double saCost= GraphUtil.getTotalCostOfTour(saOptimizationTour);
+
+                ThreeOptSwapOptimization threeOptSwapOptimization= new ThreeOptSwapOptimization(tspTour);
+                List<Vertex> taTour= threeOptSwapOptimization.getOptimumTour();
+                double taCost= GraphUtil.getTotalCostOfTour(taTour);
+
+                if(saCost < taCost){
+                    System.out.println("SA Wins:"+ saCost+","+taCost);
+                    saWinCount++;
+                }
+                else{
+                    System.out.println("TO Wins:"+ saCost+","+taCost);
+                    if((taCost-saCost) > maxCostDiff)
+                        maxCostDiff = taCost-saCost;
+                    taWinCount++;
+                }
+            }
+            System.out.println("SA won: "+ saWinCount);
+            System.out.println("ta won: "+ taWinCount);
+            System.out.println("Max cost diff: "+maxCostDiff);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        long endTime = System.nanoTime();
+        System.out.println("*".repeat(5) + " Application has completed running " + "*".repeat(5));
+        System.out.println("Running time: " + (endTime-startTime)/Math.pow(10,9));
     }
 }
