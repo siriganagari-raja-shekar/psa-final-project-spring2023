@@ -1,5 +1,9 @@
 package org.info6205.tsp.io;
 
+import org.info6205.tsp.core.Graph;
+import org.info6205.tsp.core.UndirectedGraph;
+import org.info6205.tsp.core.Vertex;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,9 +26,10 @@ public class Preprocess {
      * @param fileName Filename with extension
      * @return The list of strings after pre-processing
      */
-    public List<String> start(String fileName) {
+    public Graph start(String fileName) throws Exception {
         List<String> rawLines = readData(fileName);
-        return substituteNodeHash(rawLines);
+        rawLines = substituteNodeHash(rawLines);
+        return getGraph(rawLines);
     }
 
     /**
@@ -71,5 +76,31 @@ public class Preprocess {
         }
 
         return lines;
+    }
+
+    /**
+     * A graph is created
+     * @param lines the raw lines that contains id and coordinates
+     * @return the graph generated
+     * @throws Exception
+     */
+    public Graph getGraph(List<String> lines) throws Exception {
+        Graph graph = new UndirectedGraph();
+        for(String line: lines){
+            String[] lineSplit = line.split(",");
+            graph.addVertex(new Vertex(Long.parseLong(lineSplit[0]), Double.parseDouble(lineSplit[2]), Double.parseDouble(lineSplit[1])));
+        }
+
+        List<Vertex> vertexList = new ArrayList<>(graph.getAllVertices());
+
+        for (int i = 0; i < vertexList.size(); i++) {
+            for (int j = i+1; j < vertexList.size(); j++) {
+                Vertex a = vertexList.get(i);
+                Vertex b = vertexList.get(j);
+                graph.addEdge(a, b);
+            }
+        }
+
+        return graph;
     }
 }
