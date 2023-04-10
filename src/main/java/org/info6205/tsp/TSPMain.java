@@ -25,26 +25,9 @@ public class TSPMain
 
         long startTime = System.nanoTime();
         Preprocess preprocess = new Preprocess();
-        List<String> lines = preprocess.start("crimeSample.csv");
-
-        Graph graph = new UndirectedGraph();
-
+        Graph graph = null;
         try {
-            for(String line: lines){
-                String[] lineSplit = line.split(",");
-                graph.addVertex(new Vertex(Long.parseLong(lineSplit[0]), Double.parseDouble(lineSplit[2]), Double.parseDouble(lineSplit[1])));
-            }
-
-            List<Vertex> vertexList = new ArrayList<>(graph.getAllVertices());
-
-            for (int i = 0; i < vertexList.size(); i++) {
-                for (int j = i+1; j < vertexList.size(); j++) {
-                    Vertex a = vertexList.get(i);
-                    Vertex b = vertexList.get(j);
-                    graph.addEdge(a, b);
-                }
-            }
-
+            graph = preprocess.start("crimeSample.csv");
             ChristofidesAlgorithm christofidesAlgorithm = new ChristofidesAlgorithm(graph);
 
             List<Vertex> bestTourYet = null;
