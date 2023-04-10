@@ -24,31 +24,36 @@ public class SimulatedAnnealing {
     public List<Vertex> optimize() {
         double currentCost = GraphUtil.getTotalCostOfTour(tour);
         double newCost = currentCost;
-        for (int it = 0; it < iterations; it++) {
-            int vertexCount = tour.size();
+        for (int it=0; it < this.iterations; it++) {
+            int vertexCount = tour.size()-1;
+
             Random rand = new Random();
-            int i = rand.nextInt(vertexCount - 1);
-            int j = rand.nextInt(vertexCount - 1);
-            while (i == j) {
-                j = rand.nextInt(vertexCount - 1);
+            int i = rand.nextInt(vertexCount-4);
+            int j = rand.nextInt(vertexCount-2);
+            while(j < i){
+                j= rand.nextInt(vertexCount -2);
             }
-            Vertex v1 = tour.get(i);
-            Vertex v2 = tour.get(i + 1);
-            Vertex v3 = tour.get(j);
-            Vertex v4 = tour.get(j + 1);
-            double costDelta = -GraphUtil.getDistanceBetweenVertices(v1, v2) - GraphUtil.getDistanceBetweenVertices(v3, v4)
-                    + GraphUtil.getDistanceBetweenVertices(v1, v3) + GraphUtil.getDistanceBetweenVertices(v2, v4);
-            newCost += costDelta;
-            if (costDelta < -1) {
+            int k= rand.nextInt(vertexCount );
+            while( k < j ){
+                k = rand.nextInt(vertexCount);
+            }
+
+            ThreeOptForSA threeOpt= new ThreeOptForSA(tour);
+            double delta = threeOpt.doThreeOpt(i, j, k);
+            newCost = newCost + delta;
+            if(delta < 0){
                 currentCost = newCost;
-                doTwoOptSwap(tour, i, j);
-            } else {
-                if (shouldAccept(newCost, currentCost)) {
+                this.tour = threeOpt.getTour();
+            }else{
+                if(shouldAccept(newCost, currentCost)){
                     currentCost = newCost;
-                    doTwoOptSwap(tour, i, j);
+                    this.tour = threeOpt.getTour();
                 }
             }
-            coolTemp();
+            if(it%100 ==0 ){
+                coolTemp();
+            }
+            //coolTemp();
         }
         return tour;
     }
@@ -58,7 +63,7 @@ public class SimulatedAnnealing {
     }
 
     private boolean shouldAccept(double newCost, double currentCost) {
-        double prob = Math.exp(-(newCost - currentCost) / this.temp);
+        double prob = Math.exp((currentCost - newCost) / this.temp);
         Random rand = new Random();
         if (newCost < currentCost) {
             //accept new solution
@@ -71,17 +76,5 @@ public class SimulatedAnnealing {
             }
         }
         return false;
-    }
-
-    private void doTwoOptSwap(List<Vertex> vertices, int i, int j) {
-        List<Vertex> temp = new ArrayList<>();
-        for (int k = j; k > i; k--) {
-            temp.add(vertices.get(k));
-        }
-        int c = 0;
-        for (int k = i + 1; k <= j; k++) {
-            vertices.set(k, temp.get(c));
-            c++;
-        }
     }
 }
