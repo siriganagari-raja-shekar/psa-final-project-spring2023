@@ -84,7 +84,7 @@ public class Preprocess {
      * @return the graph generated
      * @throws Exception
      */
-    public Graph getGraph(List<String> lines) throws Exception {
+    private Graph getGraph(List<String> lines) throws Exception {
         Graph graph = new UndirectedGraph();
         for(String line: lines){
             String[] lineSplit = line.split(",");
