@@ -5,6 +5,7 @@ import org.info6205.tsp.core.Graph;
 import org.info6205.tsp.core.Vertex;
 import org.info6205.tsp.util.GraphUtil;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class AntColonyOptimization {
 
@@ -14,16 +15,21 @@ public class AntColonyOptimization {
     Graph graph;
     List<Edge> edges;
     int length;
+    public static double alpha = 1.0;
+    public static double beta = 2.0;
+    public static double decay = 0.7;
     List<Vertex> vertices;
 
     public AntColonyOptimization(Graph graph) {
-        vertices = new ArrayList<>(graph.getAllVertices());
+        vertices = new ArrayList<>(graph.getAllVertices().stream().sorted(Comparator.comparingLong(Vertex::getId)).collect(Collectors.toList()));
         length = vertices.size();
         distanceMatrix = new double[length][length];
         probabilityMatrix = new double[length][length];
         rewardMartrix = new double[length][length];
-        this.edges = new ArrayList<>(graph.getAllEdges());
+        this.edges = new ArrayList<>(graph.getAllEdges().stream().sorted().collect(Collectors.toList()));
         this.graph = graph;
+//        this.alpha = 24.0;
+//        this.beta = 25.0;
     }
 
     public List<Vertex> startOptimization() {
@@ -32,46 +38,54 @@ public class AntColonyOptimization {
         initializeProbabilityMatrix();
 
         double minTour = Double.MAX_VALUE;
-        Random ran = new Random();
+        Random random = new Random();
         List<Vertex> minCircuit = new ArrayList<>();
-        for (int j = 0; j < 1000000; j++) {
-            for (int i = 0; i < 1; i++) {
-                List<Integer> tour = calculateAntColonyTour(ran.nextInt(156));
-                List<Vertex> vert = new ArrayList<>();
-                for (int v : tour) {
-                    vert.add(vertices.get(v));
-                }
-
-                double tmpCost = GraphUtil.getTotalCostOfTour(vert);
-                minTour = minTour > tmpCost ? tmpCost : minTour;
-                minCircuit = vert;
+        double prevPheromoneTrail = 0.0;
+        for (int i = 0; i < 5000; i++) {
+            List<Integer> tour = calculateAntColonyTour(random.nextInt(length - 1));
+            List<Vertex> tourVertices = new ArrayList<>();
+            for (int v : tour) {
+                tourVertices.add(vertices.get(v));
             }
+
+            double tourCost = GraphUtil.getTotalCostOfTour(tourVertices);
+            minTour = minTour > tourCost ? tourCost : minTour;
+            minCircuit = tourVertices;
+            updateRewards(tourCost, prevPheromoneTrail, tourVertices);
+            initializeProbabilityMatrix();
+            prevPheromoneTrail = tourCost;
         }
 
         return minCircuit;
     }
 
-    public void updateRewards(List<Integer> tour) {
-        List<Vertex> circuit = new ArrayList<>();
-        for (Integer n: tour) circuit.add(vertices.get(n));
-        double tourCost = GraphUtil.getTotalCostOfTour(circuit);
-        for (int i = 0; i < tour.size() - 1; i++) {
-            int first = tour.get(i);
-            int second = tour.get(i+1);
+    public void updateRewards(double tourCost, double prevPheromoneTrail, List<Vertex> circuit) {
+        for (int i = 0; i < circuit.size() - 1; i++) {
+            int first = (int) circuit.get(i).getId();
+            int second = (int) circuit.get(i+1).getId();
             rewardMartrix[first][second] += rewardMartrix[first][second]/tourCost;
             rewardMartrix[second][first] += rewardMartrix[first][second]/tourCost;
+            rewardMartrix[first][second] = (1 - decay) * rewardMartrix[first][second] + decay * (tourCost - prevPheromoneTrail);
+            rewardMartrix[second][first] = (1 - decay) * rewardMartrix[second][first] + decay * (tourCost - prevPheromoneTrail);
+        }
+
+        for (int i = 0; i < rewardMartrix.length; i++) {
+            for (int j = 0; j < rewardMartrix[i].length; j++) {
+                double decayFactor = (1 - decay) * rewardMartrix[i][j] + decay * (tourCost - prevPheromoneTrail);
+                rewardMartrix[i][j] = decayFactor;
+            }
         }
     }
 
     private void recalculateProbabilityMatrix(List<Integer> unvisited, int source) {
-        double totalInverseDistance = 0.0;
+        double totalInverseRewardDistance = 0.0;
         for (int i: unvisited) {
-            double inverseDistance = (1/distanceMatrix[source][i]) * rewardMartrix[source][i];
-            totalInverseDistance += inverseDistance;
+            double inverseDistance = Math.pow(1/distanceMatrix[source][i], alpha) * Math.pow(rewardMartrix[source][i], beta);
+            totalInverseRewardDistance += inverseDistance;
         }
 
         for (int i: unvisited) {
-            probabilityMatrix[source][i] = (1/distanceMatrix[source][i])*rewardMartrix[source][i]/totalInverseDistance;
+            probabilityMatrix[source][i] = Math.pow(1/distanceMatrix[source][i], alpha) * Math.pow(rewardMartrix[source][i], beta)/totalInverseRewardDistance;
         }
     }
 
@@ -94,7 +108,6 @@ public class AntColonyOptimization {
             }
 
             unvisited.remove(Integer.valueOf(iterNode));
-
             res.add(iterNode);
             recalculateProbabilityMatrix(unvisited, iterNode);
         }
@@ -105,20 +118,23 @@ public class AntColonyOptimization {
 
     private void initializeProbabilityMatrix() {
         for (int i = 0; i < distanceMatrix.length; i++) {
-            double totalInversetDistance = 0.0;
+            double totalInverseRewardDistance = 0.0;
             for (int j = 0; j < distanceMatrix[i].length; j++) {
-                totalInversetDistance += (1/distanceMatrix[i][j])*rewardMartrix[i][j];
+                totalInverseRewardDistance += Math.pow(1/distanceMatrix[i][j], alpha) * Math.pow(rewardMartrix[i][j], beta);
             }
-            for (int j = 0; j < distanceMatrix[0].length; j++) {
-                probabilityMatrix[i][j] = (1/distanceMatrix[i][j])*rewardMartrix[i][j]/totalInversetDistance;
+
+            for (int j = 0; j < distanceMatrix[i].length; j++) {
+                probabilityMatrix[i][j] = Math.pow(1/distanceMatrix[i][j], alpha) * Math.pow(rewardMartrix[i][j], beta) / totalInverseRewardDistance;
             }
         }
     }
 
     private void initializeRewardMatrix() {
-        for (int i = 0; i < rewardMartrix.length; i++)
-            for (int j = 0; j < rewardMartrix[0].length; j++)
+        for (int i = 0; i < rewardMartrix.length; i++) {
+            for (int j = 0; j < rewardMartrix[i].length; j++) {
                 rewardMartrix[i][j] = 1.0;
+            }
+        }
     }
 
     private void initializeDistanceMatrix() {
