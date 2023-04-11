@@ -124,4 +124,16 @@ public class MinimumSpanningTree {
         return vertices.get(i);
     }
 
+    /**
+     * Method to get the total cost of the MST
+     * @return Cost of the MST tree
+     */
+    public double getMSTCost() {
+        double cost = 0;
+        for (Edge e : mst.getAllEdges()) {
+            cost += e.getWeight();
+        }
+        return cost;
+    }
+
 }
