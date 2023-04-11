@@ -27,7 +27,7 @@ public class TSPMain
         Preprocess preprocess = new Preprocess();
         Graph graph = null;
         try {
-            graph = preprocess.start("crimeSample.csv");
+            graph = preprocess.start("teamprojectfinal.csv");
             ChristofidesAlgorithm christofidesAlgorithm = new ChristofidesAlgorithm(graph);
 
             List<Vertex> bestTourYet = null;
