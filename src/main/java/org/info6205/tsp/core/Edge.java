@@ -10,6 +10,9 @@ public class Edge implements Comparable<Edge>{
 
     private double weight;
 
+    public Edge() {
+    }
+
     public Edge(Vertex source, Vertex destination, double weight) {
         this.source = source;
         this.destination = destination;

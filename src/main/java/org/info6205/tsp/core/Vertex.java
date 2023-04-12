@@ -8,6 +8,9 @@ public class Vertex{
 
     private double yPos;
 
+    public Vertex() {
+    }
+
     public Vertex(long id, double xPos, double yPos) {
         this.id = id;
         this.xPos = xPos;

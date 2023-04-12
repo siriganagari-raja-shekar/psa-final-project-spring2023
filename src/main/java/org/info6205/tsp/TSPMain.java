@@ -32,22 +32,18 @@ public class TSPMain
 
             List<Vertex> bestTourYet = null;
             double bestCostYet = Double.MAX_VALUE;
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 1; i++) {
 
                 List<Vertex> tspTour = christofidesAlgorithm.generateTSPTour();
-//
-//                TwoOptSwapOptimization twoOptSwapOptimization = new TwoOptSwapOptimization(tspTour);
-//                List<Vertex> optimizedTwoOptTour = twoOptSwapOptimization.getOptimumTour();
+
 
                 ThreeOptSwapOptimization threeOptSwapOptimization = new ThreeOptSwapOptimization(tspTour);
                 List<Vertex> optimizedThreeOptTour = threeOptSwapOptimization.getOptimumTour();
 
-//                double twoOptTourCost = GraphUtil.getTotalCostOfTour(optimizedTwoOptTour);
+
                 double threeOptTourCost = GraphUtil.getTotalCostOfTour(optimizedThreeOptTour);
-//                System.out.println("Two opt tour cost: " + twoOptTourCost);
                 System.out.println("Three opt tour cost: " + threeOptTourCost);
-//                bestCostYet = twoOptTourCost < threeOptTourCost ? twoOptTourCost : threeOptTourCost;
-//                bestTourYet = twoOptTourCost < threeOptTourCost ? optimizedTwoOptTour : optimizedThreeOptTour;
+
 
                 if(bestCostYet > GraphUtil.getTotalCostOfTour(optimizedThreeOptTour)){
                     bestTourYet = optimizedThreeOptTour;
