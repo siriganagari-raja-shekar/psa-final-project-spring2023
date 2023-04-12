@@ -1,4 +1,4 @@
-package org.info6205.tsp.algorithm;
+package org.info6205.tsp.optimizations;
 
 import org.info6205.tsp.core.Vertex;
 import org.info6205.tsp.util.GraphUtil;
