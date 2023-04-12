@@ -1,4 +1,4 @@
-package org.info6205.tsp;
+package org.info6205.tsp.io;
 
 import org.info6205.tsp.io.Preprocess;
 import org.junit.Test;

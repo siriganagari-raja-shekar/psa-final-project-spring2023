@@ -1,4 +1,4 @@
-package org.info6205.tsp.algorithm;
+package org.info6205.tsp.optimizations;
 
 import org.info6205.tsp.core.Edge;
 import org.info6205.tsp.core.Graph;

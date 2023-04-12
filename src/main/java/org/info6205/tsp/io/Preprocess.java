@@ -1,10 +1,13 @@
 package org.info6205.tsp.io;
 
+import org.info6205.tsp.TSPMain;
 import org.info6205.tsp.core.Graph;
 import org.info6205.tsp.core.UndirectedGraph;
 import org.info6205.tsp.core.Vertex;
 
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,8 +52,10 @@ public class Preprocess {
         List<String> rawLines;
         FileHelper fh = new FileHelper();
         try {
-            rawLines = fh.read(fileName);
-        } catch (IOException e) {
+            URI uri = Preprocess.class.getClassLoader().getResource("sample.csv").toURI();
+            String absoluteFilePath = Paths.get(uri).toAbsolutePath().toString();
+            rawLines = fh.read(absoluteFilePath);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 

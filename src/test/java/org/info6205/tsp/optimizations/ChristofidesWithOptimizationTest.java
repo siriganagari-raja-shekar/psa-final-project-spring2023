@@ -1,15 +1,16 @@
-package org.info6205.tsp.algorithm;
+package org.info6205.tsp.optimizations;
 
 
+import org.info6205.tsp.algorithm.ChristofidesAlgorithm;
+import org.info6205.tsp.algorithm.MinimumSpanningTree;
 import org.info6205.tsp.core.Graph;
-import org.info6205.tsp.core.UndirectedGraph;
-import org.info6205.tsp.core.UndirectedSubGraph;
 import org.info6205.tsp.core.Vertex;
 import org.info6205.tsp.io.Preprocess;
+import org.info6205.tsp.optimizations.ThreeOptSwapOptimization;
+import org.info6205.tsp.optimizations.TwoOptSwapOptimization;
 import org.info6205.tsp.util.GraphUtil;
 import org.junit.jupiter.api.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ChristofidesWithOptimizationTest {
