@@ -62,7 +62,7 @@ public class Preprocess {
         List<String> rawLines;
         FileHelper fh = new FileHelper();
         try {
-            URI uri = Preprocess.class.getClassLoader().getResource("sample.csv").toURI();
+            URI uri = Preprocess.class.getClassLoader().getResource(fileName).toURI();
             String absoluteFilePath = Paths.get(uri).toAbsolutePath().toString();
             rawLines = fh.read(absoluteFilePath);
         } catch (Exception e) {
