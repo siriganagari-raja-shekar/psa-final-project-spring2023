@@ -4,7 +4,9 @@ import org.info6205.tsp.core.Graph;
 import org.info6205.tsp.core.UndirectedSubGraph;
 import org.info6205.tsp.core.Vertex;
 import org.info6205.tsp.util.GraphUtil;
+import org.info6205.tsp.visualization.TSPVisualization;
 
+import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +36,10 @@ public class ChristofidesAlgorithm {
 
         //Getting minimum spanning tree
         Graph mst = minimumSpanningTree.getMinimumSpanningTree();
+        TSPVisualization viz= new TSPVisualization(mst, 1900, 1000);
+        viz.setVertexStyles(5, 5, Color.black);
+        viz.setEdgeStyles(1.0f, Color.red);
+        viz.visualizeMST();
 
         //Creating subgraph for greedy perfect matching input
         Graph subGraph = new UndirectedSubGraph(mst.getOddDegreeVertices(), graph);
