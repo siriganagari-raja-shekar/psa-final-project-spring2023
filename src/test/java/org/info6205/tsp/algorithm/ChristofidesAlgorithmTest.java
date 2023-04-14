@@ -20,7 +20,7 @@ public class ChristofidesAlgorithmTest {
 
         try{
             Preprocess preprocess = new Preprocess();
-            testGraph = preprocess.start("crimeSample.csv");
+            testGraph = preprocess.start("teamprojectfinal.csv");
         }
         catch (Exception e){
             e.printStackTrace();
@@ -56,6 +56,8 @@ public class ChristofidesAlgorithmTest {
             ChristofidesAlgorithm christofidesAlgorithm = new ChristofidesAlgorithm(testGraph);
 
             List<Vertex> tspTour = christofidesAlgorithm.generateTSPTour();
+
+            System.out.println(GraphUtil.getTotalCostOfTour(tspTour));
 
             System.out.println((GraphUtil.getTotalCostOfTour(tspTour)-mstCost)/mstCost);
 

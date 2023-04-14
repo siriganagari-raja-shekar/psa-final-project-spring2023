@@ -57,7 +57,7 @@ public class SimulatedAnnealingTest {
         Preprocess preprocess = new Preprocess();
 
         try {
-            Graph graph = preprocess.start("crimeSample.csv");
+            Graph graph = preprocess.start("teamprojectfinal.csv");
             double best= Double.MAX_VALUE;
             double avg= 0;
             final double RUNS=100;
