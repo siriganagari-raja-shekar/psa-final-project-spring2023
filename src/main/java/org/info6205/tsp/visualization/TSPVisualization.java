@@ -2,7 +2,6 @@ package org.info6205.tsp.visualization;
 
 import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
-import edu.uci.ics.jung.algorithms.layout.SpringLayout;
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -18,8 +17,8 @@ import org.info6205.tsp.core.Vertex;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.awt.geom.Rectangle2D;
+import java.util.*;
 import java.util.List;
 
 
@@ -29,7 +28,10 @@ public class TSPVisualization {
     VisualizationViewer<Vertex, Edge> vv;
     JFrame frame;
 
-    public TSPVisualization(Graph tspGraph, final int width,  final int height){
+    KKLayout<Vertex, Edge> layout;
+
+
+    public TSPVisualization(final Graph tspGraph, final int width,  final int height){
         this.tspGraph = tspGraph;
         this.jungGraph = new UndirectedSparseGraph();
         addVerticesToJungGraph(tspGraph, jungGraph);
@@ -57,10 +59,11 @@ public class TSPVisualization {
     }
 
     public void setVisualizationViwer(final int WIDTH,  final int HEIGHT){
-        KKLayout<Vertex, Edge> layout= new KKLayout(jungGraph);
-        layout.setSize(new Dimension(WIDTH, HEIGHT));
-        layout.setInitializer(new RandomLocationTransformer<>(new Dimension(WIDTH, HEIGHT)));
-        layout.initialize();
+        this.layout= new KKLayout(jungGraph);
+        this.layout.setMaxIterations(1000);
+        this.layout.setSize(new Dimension(WIDTH, HEIGHT));
+        this.layout.setInitializer(new RandomLocationTransformer<>(new Dimension(WIDTH, HEIGHT)));
+        this.layout.initialize();
         this.vv = new VisualizationViewer<>(layout);
         vv.setPreferredSize(new Dimension(WIDTH, HEIGHT));
     }
@@ -103,7 +106,7 @@ public class TSPVisualization {
         }
     }
 
-    public void visualizeMST() throws InterruptedException {
+    public boolean visualizeMST() throws InterruptedException {
         //get render context from the visualization viewer
         RenderContext<Vertex, Edge> renderContext = vv.getRenderContext();
         List<Edge> mstEdges = new ArrayList<>();
@@ -115,11 +118,11 @@ public class TSPVisualization {
             // Update the edge paint and stroke transformers for the current edge
             renderContext.setEdgeDrawPaintTransformer(v -> {
                 if (checkIfEdgeExist(v, animatedEdges)) {
-                    return Color.red;
+                    return new Color(128, 0, 0, 64);
                 } else {
                     if (edge.getWeight() == v.getWeight()) {
                         animatedEdges.add(edge);
-                        return Color.red;
+                        return new Color(128, 0, 0, 64);
                     }
                 }
                 return null;
@@ -135,14 +138,20 @@ public class TSPVisualization {
             vv.repaint();
 
             // Wait for a short period of time to create the simulation effect
-            Thread.sleep(25);
-            System.out.println("Painting edges");
+            Thread.sleep(20);
+            //System.out.println("Painting edges");
+
         }
 
         // Reset the edge paint and stroke transformers to the default
-        renderContext.setEdgeDrawPaintTransformer(v -> Color.red);
+        renderContext.setEdgeDrawPaintTransformer(v -> new Color(128, 0, 0, 64));
         renderContext.setEdgeStrokeTransformer(e -> new BasicStroke(1.0f));
         System.out.println("Done painting edges");
+
+        while(!layout.done()){
+            System.out.println("Organizing layout");
+        }
+        return true;
     }
 
     private static boolean checkIfEdgeExist(Edge e, HashSet<Edge> edges) {
@@ -150,6 +159,47 @@ public class TSPVisualization {
             if (edge.getWeight() == e.getWeight()) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    public void hightlightOddDegreeVertices(Set<Vertex> oddDegreeVertices, Color color, int width, int height) throws InterruptedException {
+        Set<Vertex> visitedVertices= new HashSet<>();
+        //get render context from the visualization viewer
+        RenderContext<Vertex, Edge> renderContext = vv.getRenderContext();
+        for(Vertex currentVertex: oddDegreeVertices){
+            renderContext.setVertexFillPaintTransformer(v -> {
+                if(checkIfVertexExists(visitedVertices, v)){
+                    return color;
+                } else{
+                    if(checkIfVertexExists(oddDegreeVertices, v)){
+                        visitedVertices.add(v);
+                        return color;
+                    }
+                }
+                return Color.black;
+            });
+
+            renderContext.setVertexShapeTransformer(v -> {
+                if(checkIfVertexExists(visitedVertices, v)){
+                    return new Ellipse2D.Float(-5, -5, width, height);
+                } else{
+                    if(checkIfVertexExists(oddDegreeVertices, v)){
+                        visitedVertices.add(v);
+                        return new Ellipse2D.Float(-5, -5, width, height);
+                    }
+                }
+                return new Ellipse2D.Float(-5, -5, 5, 5);
+            });
+            vv.repaint();
+            Thread.sleep(10);
+        }
+    }
+
+    public boolean checkIfVertexExists(Collection<Vertex> collection, Vertex vertex){
+        for(Vertex v: collection){
+            if(vertex.getId() == v.getId())
+                return true;
         }
         return false;
     }
