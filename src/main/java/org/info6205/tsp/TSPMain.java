@@ -6,6 +6,7 @@ import org.info6205.tsp.core.UndirectedGraph;
 import org.info6205.tsp.core.UndirectedSubGraph;
 import org.info6205.tsp.core.Vertex;
 import org.info6205.tsp.io.Preprocess;
+import org.info6205.tsp.optimizations.ThreeOptSwapOptimization;
 import org.info6205.tsp.util.GraphUtil;
 
 import java.util.ArrayList;
