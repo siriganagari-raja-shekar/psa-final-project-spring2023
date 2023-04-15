@@ -66,7 +66,6 @@ public class TwoOptSwapOptimization {
                     if(costDelta < -1){
                         doTwoOptSwap(tour,i,j);
                         currentCost += costDelta;
-                        //System.out.println(currentCost);
                         improvementFound = true;
                     }
                 }

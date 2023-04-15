@@ -1,12 +1,11 @@
 package org.info6205.tsp.util;
 
 import org.apache.lucene.util.SloppyMath;
+import org.info6205.tsp.core.Edge;
+import org.info6205.tsp.core.Graph;
 import org.info6205.tsp.core.Vertex;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Utility class for graphs
@@ -50,6 +49,30 @@ public class GraphUtil {
 
         result.add(result.get(0));
         return result;
+    }
+
+    public static List<Edge> removeDuplicateUndirectedEdgesFromMultigraph(Graph graph){
+
+        List<Edge> edgeList = new ArrayList<>(graph.getAllEdges());
+        edgeList.sort((a,b)-> {
+            if(a.getSource() == b.getSource()){
+                return Long.compare(a.getDestination().getId(), b.getDestination().getId());
+            }
+            else
+                return Long.compare(a.getSource().getId(), b.getSource().getId());
+        });
+        Set<String> keysOfEdgesToRemove = new HashSet<>();
+        Set<Edge> edgesToRemove = new HashSet<>();
+        for(Edge edge: edgeList){
+            if(keysOfEdgesToRemove.contains(edge.getSource().getId()+"s"+edge.getDestination().getId()+"d")){
+                edgesToRemove.add(edge);
+            }
+            else{
+                keysOfEdgesToRemove.add(edge.getDestination().getId()+"s"+edge.getSource().getId()+"d");
+            }
+        }
+        edgeList.removeAll(edgesToRemove);
+        return edgeList;
     }
 
 }
