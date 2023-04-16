@@ -4,6 +4,7 @@ import org.info6205.tsp.core.Edge;
 import org.info6205.tsp.core.Graph;
 import org.info6205.tsp.core.UndirectedSubGraph;
 import org.info6205.tsp.core.Vertex;
+import org.info6205.tsp.optimizations.SimulatedAnnealing;
 import org.info6205.tsp.util.GraphUtil;
 import org.info6205.tsp.visualization.TSPVisualization;
 
@@ -35,8 +36,10 @@ public class ChristofidesAlgorithmVisualization {
         MinimumSpanningTree minimumSpanningTree = new MinimumSpanningTree(graph);
         //Getting minimum spanning tree
         Graph mst = minimumSpanningTree.getMinimumSpanningTree();
+        Double cost= minimumSpanningTree.getMSTCost();
         TSPVisualization viz= new TSPVisualization(mst, 1900, 1000);
-        viz.visualizeMST();
+        viz.visualizeMST(cost);
+        viz.addOverlay(cost, 0.0, 0.0, 0.0);
 
 
         viz.hightlightOddDegreeVertices(mst.getOddDegreeVertices(), Color.CYAN, 10, 10);
@@ -54,21 +57,26 @@ public class ChristofidesAlgorithmVisualization {
         viz.convertGraphToMultiGraph();
         viz.generateMultiGraph();
         viz.addEdgesfromPerfectMatching(edgesFromPerfectMatching);
-        viz.highlightEdges(edgesFromPerfectMatching, Color.CYAN, 2.0f);
+        viz.highlightEdges(edgesFromPerfectMatching, Color.CYAN, 2.0f, 0.0);
 
         //Creating Hierholzer Eulerian Circuit class instance
         HierholzerEulerianCircuit hierholzerEulerianCircuit = new HierholzerEulerianCircuit(mst);
 
         //Getting a Eulerian Circuit
         List<Vertex> eulerianCircuit = hierholzerEulerianCircuit.getEulerianCircuit();
+        Double eulerianCost= GraphUtil.getTotalCostOfTour(eulerianCircuit);
         Graph eulerianGraph= GraphUtil.generateGraphFromEulerianCircuit(hierholzerEulerianCircuit.getEulerianCircuit());
         List<Edge> eulerianEdges= GraphUtil.removeDuplicateUndirectedEdgesFromMultigraph(eulerianGraph);
-        viz.highlightEdges(eulerianEdges, Color.MAGENTA, 2.0f);
+        viz.highlightEdges(eulerianEdges, Color.MAGENTA, 2.0f, eulerianCost);
 
         List<Vertex> tspTourVertices= GraphUtil.getTSPTour(eulerianCircuit);
         Graph tspGraph= GraphUtil.generateGraphFromEulerianCircuit(tspTourVertices);
-        List<Edge> tspEdges= GraphUtil.removeDuplicateUndirectedEdgesFromMultigraph(tspGraph);
-        viz.visualizeTSPTour(tspGraph);
-        return tspTourVertices;
+        viz.visualizeTSPTour(tspGraph, Color.blue, "TSP", GraphUtil.getTotalCostOfTour(tspTourVertices));
+
+        SimulatedAnnealing sa= new SimulatedAnnealing(tspTourVertices, 51200000, 3200, 0.5);
+        List<Vertex> saTour= sa.optimize();
+        Graph saGraph= GraphUtil.generateGraphFromEulerianCircuit(saTour);
+        viz.visualizeTSPTour(saGraph, Color.GREEN, "OPT", GraphUtil.getTotalCostOfTour(saTour));
+        return saTour;
     }
 }
