@@ -5,8 +5,7 @@ import org.info6205.tsp.core.Graph;
 import org.info6205.tsp.core.UndirectedGraph;
 import org.info6205.tsp.core.Vertex;
 import org.info6205.tsp.io.Preprocess;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -40,8 +39,12 @@ public class MinimumSpanningTreeTest {
             System.out.println(mst.toString());
             int noOfVertices= mst.getAllVertices().size();
             int noOfEdges= mst.getAllEdges().size();
-            assertEquals("Checking number of edges are 8",8, noOfEdges);
-            assertEquals("Checking if number of edges are equal to (number of vertices - 1) * 2", noOfEdges, (noOfVertices-1)*2);
+
+
+            Assertions.assertEquals(8, noOfEdges);
+
+            //As edges are double in our graph implementation
+            Assertions.assertEquals(noOfEdges/2, noOfVertices-1);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -58,7 +61,7 @@ public class MinimumSpanningTreeTest {
 
         System.out.println("Cost of mst: " + mst.getAllEdges().stream().mapToDouble(Edge::getWeight).reduce(0, (a,b)->a+b)/2);
 
-        Assert.assertEquals("Number of edges is number of vertices minus one", mst.getAllEdges().size()/2, mst.getAllVertices().size()-1);
+        Assertions.assertEquals(mst.getAllEdges().size()/2, mst.getAllVertices().size()-1);
 
     }
 }

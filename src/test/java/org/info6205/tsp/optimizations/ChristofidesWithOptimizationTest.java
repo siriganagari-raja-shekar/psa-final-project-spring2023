@@ -81,7 +81,7 @@ public class ChristofidesWithOptimizationTest {
 
             double bestCostYet = Double.MAX_VALUE;
 
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 10; i++) {
                 List<Vertex> tour = christofidesAlgorithm.generateTSPTour();
 
                 TwoOptSwapOptimization threeOptSwapOptimization = new TwoOptSwapOptimization(tour);

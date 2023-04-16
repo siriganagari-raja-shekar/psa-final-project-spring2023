@@ -52,6 +52,13 @@ public class GraphUtil {
         return result;
     }
 
+    /**
+     * Removes duplicate edges from multi-graph for visualization library purposes
+     * Removing duplicates here means to remove the edge from destination to source
+     * if the source to destination edge is already included
+     * @param graph The graph from which duplicates have to be removed
+     * @return List of edges of the graph with the duplicates removed
+     */
     public static List<Edge> removeDuplicateUndirectedEdgesFromMultigraph(Graph graph){
 
         List<Edge> edgeList = new ArrayList<>(graph.getAllEdges());
@@ -76,15 +83,22 @@ public class GraphUtil {
         return edgeList;
     }
 
+    /**
+     * Generates a graph object from a given tour
+     * Used for visualization library purposes
+     * @param vertices The initial tour
+     * @return a new graph object generated from the tour
+     * @throws Exception
+     */
     public static Graph generateGraphFromEulerianCircuit(List<Vertex> vertices) throws Exception {
         Graph graph= new UndirectedGraph();
         for(Vertex v: vertices){
-            boolean isAlreadAdded= false;
+            boolean isAlreadyAdded= false;
             for(Vertex gv: graph.getAllVertices())
                 if(v.getId() == gv.getId())
-                    isAlreadAdded = true;
+                    isAlreadyAdded = true;
 
-            if(!isAlreadAdded)
+            if(!isAlreadyAdded)
                 graph.addVertex(v);
         }
         for(int i=0; i< vertices.size(); i++){
