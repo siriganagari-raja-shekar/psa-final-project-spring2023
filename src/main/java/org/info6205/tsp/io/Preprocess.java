@@ -19,9 +19,19 @@ import java.util.Map;
  *  2. Replaces node hash id with an integer equivalent
  */
 public class Preprocess {
-    private Map<Integer, String> nodeMap;
+    private Map<Long, String> nodeMap;
+    private List<String> rawLines;
     public Preprocess() {
         nodeMap = new HashMap<>();
+        rawLines = new ArrayList<>();
+    }
+
+    /**
+     * Gets the raw lines that contain the node with co-ordinates
+     * @return the raw lines.
+     */
+    public List<String> getRawLines() {
+        return rawLines;
     }
 
     /**
@@ -30,7 +40,7 @@ public class Preprocess {
      * @return The list of strings after pre-processing
      */
     public Graph start(String fileName) throws Exception {
-        List<String> rawLines = readData(fileName);
+        rawLines = readData(fileName);
         rawLines = substituteNodeHash(rawLines);
         return getGraph(rawLines);
     }
@@ -39,7 +49,7 @@ public class Preprocess {
      * Returns a map of the simplified node id and hash
      * @return Map of the simplified node id and hash
      */
-    public Map<Integer, String> getNodeMap() {
+    public Map<Long, String> getNodeMap() {
         return nodeMap;
     }
 
@@ -68,14 +78,14 @@ public class Preprocess {
      * @return Substituted raw lines with simplified node id
      */
     private List<String> substituteNodeHash(List<String> rawLines) {
-        int nodeNumber = 0;
+        long nodeNumber = 0;
         List<String> lines = new ArrayList<>();
 
         // Remove column headings
         rawLines.remove(0);
         for(String line: rawLines) {
             String[] words = line.split(",");
-            nodeMap.put(nodeNumber, words[0]);
+            nodeMap.put(nodeNumber, line);
             words[0] = nodeNumber++ + "";
             lines.add(String.join(",", words));
         }
