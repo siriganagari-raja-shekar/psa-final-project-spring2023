@@ -46,6 +46,7 @@ public class PostProcess {
      * @return substituted node id with node hash
      */
     private String getLineData(long id) {
-        return nodeMap.get(id);
+        String[] words = nodeMap.get(id).split(",");
+        return words[0].substring(words[0].length() - 5) + "," + words[1] + "," + words[2];
     }
 }
