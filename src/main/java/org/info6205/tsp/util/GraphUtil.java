@@ -3,6 +3,7 @@ package org.info6205.tsp.util;
 import org.apache.lucene.util.SloppyMath;
 import org.info6205.tsp.core.Edge;
 import org.info6205.tsp.core.Graph;
+import org.info6205.tsp.core.UndirectedGraph;
 import org.info6205.tsp.core.Vertex;
 
 import java.util.*;

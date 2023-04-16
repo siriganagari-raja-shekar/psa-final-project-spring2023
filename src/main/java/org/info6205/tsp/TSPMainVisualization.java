@@ -2,10 +2,10 @@ package org.info6205.tsp;
 
 import org.info6205.tsp.algorithm.ChristofidesAlgorithm;
 import org.info6205.tsp.algorithm.ChristofidesAlgorithmVisualization;
-import org.info6205.tsp.algorithm.ThreeOptSwapOptimization;
 import org.info6205.tsp.core.Graph;
 import org.info6205.tsp.core.Vertex;
 import org.info6205.tsp.io.Preprocess;
+import org.info6205.tsp.optimizations.ThreeOptSwapOptimization;
 import org.info6205.tsp.util.GraphUtil;
 
 import java.util.HashSet;
@@ -21,7 +21,7 @@ public class TSPMainVisualization {
         Preprocess preprocess = new Preprocess();
         Graph graph = null;
         try {
-            graph = preprocess.start("teamproject.csv");
+            graph = preprocess.start("teamprojectfinal.csv");
 
             ChristofidesAlgorithmVisualization christofidesAlgorithm = new ChristofidesAlgorithmVisualization(graph);
 
