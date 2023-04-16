@@ -133,7 +133,7 @@ public class MinimumSpanningTree {
         for (Edge e : mst.getAllEdges()) {
             cost += e.getWeight();
         }
-        return cost;
+        return cost/2;
     }
 
 }
