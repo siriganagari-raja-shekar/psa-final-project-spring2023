@@ -45,17 +45,17 @@ public class AntColonyOptimization {
     /**
      * To adjust the impact of distance in probability matrix
      */
-    public static double alpha = 24.0;
+    public double alpha;
 
     /**
      * To adjust the impact of reward in probability matrix
      */
-    public static double beta = 25.0;
+    public double beta;
 
     /**
      * To adjust the decay rate of the reward matrix
      */
-    public static double decay = 0.7;
+    public double decay;
 
     /**
      * The list of vertices
@@ -74,8 +74,8 @@ public class AntColonyOptimization {
         rewardMartrix = new double[length][length];
         this.edges = new ArrayList<>(graph.getAllEdges().stream().sorted().collect(Collectors.toList()));
         this.graph = graph;
-//        this.alpha = 24.0;
-//        this.beta = 25.0;
+        this.alpha = 24.0;
+        this.beta = 25.0;
     }
 
     /**
@@ -93,7 +93,7 @@ public class AntColonyOptimization {
         List<Vertex> minCircuit = new ArrayList<>();
         List<Vertex> minBatchCircuit = new ArrayList<>();
         double prevPheromoneTrail = 0.0;
-        for (int i = 1; i <= 1000; i++) {
+        for (int i = 1; i <= 200; i++) {
             List<Integer> tour = calculateAntColonyTour(random.nextInt(length - 1));
             List<Vertex> tourVertices = new ArrayList<>();
             for (int v : tour) {
@@ -108,6 +108,14 @@ public class AntColonyOptimization {
                 minBatchCircuit = tourVertices;
             }
             if (i % 10 == 0) {
+                TwoOptSwapOptimization twoOptSwapOptimization = new TwoOptSwapOptimization(minBatchCircuit);
+                minBatchCircuit = twoOptSwapOptimization.getOptimumTour();
+
+                if (GraphUtil.getTotalCostOfTour(minBatchCircuit) < minTour) {
+                    minTour = minBatchTour;
+                    minCircuit = minBatchCircuit;
+                }
+
                 updateRewards(minBatchTour, prevPheromoneTrail, minBatchCircuit);
                 minBatchTour = Double.MAX_VALUE;
             }
