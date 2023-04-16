@@ -3,6 +3,7 @@ package org.info6205.tsp.util;
 import org.apache.lucene.util.SloppyMath;
 import org.info6205.tsp.core.Edge;
 import org.info6205.tsp.core.Graph;
+import org.info6205.tsp.core.UndirectedGraph;
 import org.info6205.tsp.core.Vertex;
 
 import java.util.*;
@@ -75,4 +76,22 @@ public class GraphUtil {
         return edgeList;
     }
 
+    public static Graph generateGraphFromEulerianCircuit(List<Vertex> vertices) throws Exception {
+        Graph graph= new UndirectedGraph();
+        for(Vertex v: vertices){
+            boolean isAlreadAdded= false;
+            for(Vertex gv: graph.getAllVertices())
+                if(v.getId() == gv.getId())
+                    isAlreadAdded = true;
+
+            if(!isAlreadAdded)
+                graph.addVertex(v);
+        }
+        for(int i=0; i< vertices.size(); i++){
+            if(i+1 <= vertices.size()-1){
+                graph.addEdge(vertices.get(i), vertices.get(i+1));
+            }
+        }
+        return graph;
+    }
 }

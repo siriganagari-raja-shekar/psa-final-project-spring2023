@@ -1,24 +1,17 @@
 package org.info6205.tsp;
 
-import org.info6205.tsp.algorithm.*;
+import org.info6205.tsp.algorithm.ChristofidesAlgorithm;
+import org.info6205.tsp.algorithm.ChristofidesAlgorithmVisualization;
 import org.info6205.tsp.core.Graph;
-import org.info6205.tsp.core.UndirectedGraph;
-import org.info6205.tsp.core.UndirectedSubGraph;
 import org.info6205.tsp.core.Vertex;
 import org.info6205.tsp.io.Preprocess;
 import org.info6205.tsp.optimizations.ThreeOptSwapOptimization;
 import org.info6205.tsp.util.GraphUtil;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-/**
- * Hello world!
- *
- */
-public class TSPMain
-{
+public class TSPMainVisualization {
     public static void main( String[] args )
     {
 
@@ -29,7 +22,8 @@ public class TSPMain
         Graph graph = null;
         try {
             graph = preprocess.start("teamprojectfinal.csv");
-            ChristofidesAlgorithm christofidesAlgorithm = new ChristofidesAlgorithm(graph);
+
+            ChristofidesAlgorithmVisualization christofidesAlgorithm = new ChristofidesAlgorithmVisualization(graph);
 
             List<Vertex> bestTourYet = null;
             double bestCostYet = Double.MAX_VALUE;
@@ -64,9 +58,5 @@ public class TSPMain
         long endTime = System.nanoTime();
         System.out.println("*".repeat(5) + " Application has completed running " + "*".repeat(5));
         System.out.println("Running time: " + (endTime-startTime)/Math.pow(10,9));
-    }
-
-    public static double calculateEuclidianDistance(Vertex a, Vertex b){
-        return Math.sqrt(Math.pow(a.getXPos()-b.getXPos(),2) + Math.pow(a.getYPos()-b.getYPos(),2));
     }
 }
