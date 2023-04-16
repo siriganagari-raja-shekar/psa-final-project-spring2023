@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
+import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -16,6 +17,7 @@ import org.info6205.tsp.core.Vertex;
 
 import javax.swing.*;
 import javax.swing.Timer;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,7 +32,10 @@ public class TSPVisualization {
     VisualizationViewer<Vertex, Edge> vv;
     JFrame frame;
 
+    GraphZoomScrollPane panel;
+
     KKLayout<Vertex, Edge> layout;
+
 
 
     public TSPVisualization(final Graph tspGraph, final int width,  final int height){
@@ -47,7 +52,8 @@ public class TSPVisualization {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(new BorderLayout());
 
-        final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
+        this.panel = new GraphZoomScrollPane(vv);
+
         frame.getContentPane().add(panel, BorderLayout.CENTER);
 
         //Code for transform and picking
@@ -60,17 +66,17 @@ public class TSPVisualization {
         frame.setVisible(true);
     }
 
-    public void setVisualizationViwer(final int WIDTH,  final int HEIGHT){
+    public void setVisualizationViwer(final int width,  final int hieght){
         this.layout= new KKLayout<>(jungGraph);
-        this.layout.setMaxIterations(1000);
-        this.layout.setSize(new Dimension(WIDTH, HEIGHT));
-        this.layout.setInitializer(new RandomLocationTransformer<>(new Dimension(WIDTH, HEIGHT)));
+        this.layout.setMaxIterations(5000);
+        this.layout.setSize(new Dimension(width, hieght));
+        this.layout.setInitializer(new RandomLocationTransformer<>(new Dimension(width, hieght)));
         this.layout.initialize();
         this.vv = new VisualizationViewer<>(layout);
-        vv.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        vv.setPreferredSize(new Dimension(width, hieght));
     }
 
-    public void setVertexStyles(final int WIDTH, final int HEIGHT, final Color COLOR ){
+    public void setVertexStyles(final int width, final int height, final Color COLOR ){
         //get render context from the visualization viewer
         RenderContext<Vertex, Edge> renderContext = vv.getRenderContext();
 
@@ -79,13 +85,14 @@ public class TSPVisualization {
         renderContext.setVertexLabelTransformer(vertexStringer);
 
         //Shape the vertices
-        Function<Vertex, Shape> vertexShapeTransformer = vertex -> new Ellipse2D.Float(-5, -5, WIDTH, HEIGHT);
+        Function<Vertex, Shape> vertexShapeTransformer = vertex -> new Ellipse2D.Float(-5, -5, width, height);
         renderContext.setVertexShapeTransformer(vertexShapeTransformer);
 
         //Set label position and the default vertex color
         Renderer<Vertex, Edge> renderer = vv.getRenderer();
         renderer.getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.N);
         renderContext.setVertexFillPaintTransformer(v -> COLOR);
+        vv.repaint();
     }
 
     public void setEdgeStyles(final float strokeWidth, final Color color){
@@ -94,6 +101,7 @@ public class TSPVisualization {
         //set edge color and the stroke width
         renderContext.setEdgeDrawPaintTransformer(v -> color);
         renderContext.setEdgeStrokeTransformer(e -> new BasicStroke(strokeWidth));
+        vv.repaint();
     }
 
     private void addEdgesToJungGraph(Graph tspGraph, edu.uci.ics.jung.graph.Graph jungGraph) {
@@ -241,15 +249,14 @@ public class TSPVisualization {
         return false;
     }
 
-    public edu.uci.ics.jung.graph.Graph<Vertex, Edge> highlightEdges(Graph graph, Color color, float strokeWidth) {
-        Set<Edge> graphEdges = graph.getAllEdges();
+    public edu.uci.ics.jung.graph.Graph<Vertex, Edge> highlightEdges(Collection<Edge> graphEdges, Color color, float strokeWidth) {
         HashSet<Edge> visitedEdges = new HashSet<>();
         // get render context from the visualization viewer
         RenderContext<Vertex, Edge> renderContext = vv.getRenderContext();
 
-        int delay = 1; // delay in milliseconds
+        int delay = 20; // delay in milliseconds
         final int[] index = {0};
-
+        final int[] c = {0};
         ActionListener taskPerformer = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 if (index[0] < graphEdges.size()) {
@@ -257,6 +264,7 @@ public class TSPVisualization {
                     // Update the edge paint and stroke transformers for the current edge
                     renderContext.setEdgeDrawPaintTransformer(e -> {
                         if (checkIfEdgeExist(e, visitedEdges)) {
+                            //System.out.println("It reached condition edge paint");
                             return color;
                         } else {
                             if (edge.getWeight() == e.getWeight()) {
@@ -267,7 +275,9 @@ public class TSPVisualization {
                         return new Color(128, 0, 0, 128);
                     });
                     renderContext.setEdgeStrokeTransformer(e -> {
+                        c[0]++;
                         if (checkIfEdgeExist(e, visitedEdges)) {
+                            //System.out.println("It reached condition edge stroke");
                             return new BasicStroke(strokeWidth);
                         }
                         return new BasicStroke(1.0f);
@@ -285,22 +295,58 @@ public class TSPVisualization {
         timer.start();
 
         while (timer.isRunning()){}
-        System.out.println("Highlighting edges done");
+        System.out.println("Highlighting edges done"+ c[0]);
         return jungGraph;
     }
 
-    public void addNewEdgesToJungGraph(List<Edge> edges){
+
+    public void addEdgesfromPerfectMatching(List<Edge> edges) throws InterruptedException {
         try {
             for (Edge edge : edges) {
                 Vertex sourceVertex = edge.getSource();
                 Vertex destinationVertex = edge.getDestination();
-                if(jungGraph.findEdge(sourceVertex, destinationVertex) == null || jungGraph.findEdge(destinationVertex, sourceVertex) == null){
-                    System.out.println(sourceVertex.getId()+"-"+destinationVertex.getId());
-                }
                 jungGraph.addEdge(edge, sourceVertex, destinationVertex);
             }
         }catch (Exception e){
             System.out.println(e);
         }
+        vv.repaint();
     }
+
+    public void convertGraphToMultiGraph() throws InterruptedException {
+        edu.uci.ics.jung.graph.Graph<Vertex, Edge> multigraph = new UndirectedSparseMultigraph<>();
+        for (Vertex v : jungGraph.getVertices()) {
+            multigraph.addVertex(v);
+        }
+        for (Edge e : jungGraph.getEdges()) {
+            multigraph.addEdge(e, e.getSource(), e.getDestination());
+        }
+        this.jungGraph = multigraph;
+    }
+
+    public void generateMultiGraph(){
+        this.setVisualizationViwer(1900, 1000);
+        this.setVertexStyles(5, 5, Color.black);
+        this.setEdgeStyles(1.0f, Color.red);
+
+        this.frame = new JFrame("TSP Visualization");
+        this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.frame.getContentPane().setLayout(new BorderLayout());
+
+        this.panel = new GraphZoomScrollPane(this.vv);
+
+        frame.getContentPane().add(this.panel, BorderLayout.CENTER);
+
+        //Code for transform and picking
+        final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse<String, Number>();
+        this.vv.setGraphMouse(graphMouse);
+        this.vv.addKeyListener(graphMouse.getModeKeyListener());
+
+        this.frame.pack();
+        this.frame.setLocationRelativeTo(null);
+        this.frame.setVisible(true);
+    }
+
+    
+
 }
