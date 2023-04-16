@@ -1,8 +1,11 @@
 package org.info6205.tsp.algorithm;
 
+import org.info6205.tsp.core.Edge;
 import org.info6205.tsp.core.Graph;
 import org.info6205.tsp.core.UndirectedGraph;
 import org.info6205.tsp.core.Vertex;
+import org.info6205.tsp.io.Preprocess;
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -42,5 +45,20 @@ public class MinimumSpanningTreeTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    public void testNumberOfEdgesInSpanningTreeAndCost() throws Exception {
+
+        Graph graph = new Preprocess().start("teamprojectfinal.csv");
+
+        MinimumSpanningTree minimumSpanningTree = new MinimumSpanningTree(graph);
+
+        Graph mst = minimumSpanningTree.getMinimumSpanningTree();
+
+        System.out.println("Cost of mst: " + mst.getAllEdges().stream().mapToDouble(Edge::getWeight).reduce(0, (a,b)->a+b)/2);
+
+        Assert.assertEquals("Number of edges is number of vertices minus one", mst.getAllEdges().size()/2, mst.getAllVertices().size()-1);
+
     }
 }
