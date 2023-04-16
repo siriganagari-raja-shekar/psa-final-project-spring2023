@@ -1,7 +1,10 @@
 package org.info6205.tsp.visualization;
 
 import com.google.common.base.Function;
+import edu.uci.ics.jung.algorithms.layout.CircleLayout;
+import edu.uci.ics.jung.algorithms.layout.FRLayout2;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
+import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
@@ -17,7 +20,6 @@ import org.info6205.tsp.core.Vertex;
 
 import javax.swing.*;
 import javax.swing.Timer;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,7 +36,7 @@ public class TSPVisualization {
 
     GraphZoomScrollPane panel;
 
-    KKLayout<Vertex, Edge> layout;
+    Layout<Vertex, Edge> layout;
 
 
 
@@ -68,7 +70,6 @@ public class TSPVisualization {
 
     public void setVisualizationViwer(final int width,  final int hieght){
         this.layout= new KKLayout<>(jungGraph);
-        this.layout.setMaxIterations(5000);
         this.layout.setSize(new Dimension(width, hieght));
         this.layout.setInitializer(new RandomLocationTransformer<>(new Dimension(width, hieght)));
         this.layout.initialize();
@@ -120,6 +121,15 @@ public class TSPVisualization {
     public boolean visualizeMST() {
         //get render context from the visualization viewer
         RenderContext<Vertex, Edge> renderContext = vv.getRenderContext();
+        Function<Vertex, Shape> vertexShapeTransformer = vertex -> new Ellipse2D.Float(-5, -5, 5, 5);
+        renderContext.setVertexShapeTransformer(vertexShapeTransformer);
+
+        Function<Vertex, String> vertexStringer = v -> String.valueOf(v.getId());
+        renderContext.setVertexLabelTransformer(vertexStringer);
+
+        Renderer<Vertex, Edge> renderer = vv.getRenderer();
+        renderer.getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.N);
+
         List<Edge> mstEdges = new ArrayList<>();
         for (Edge edge : tspGraph.getAllEdges()) {
             mstEdges.add(edge);
@@ -135,7 +145,7 @@ public class TSPVisualization {
 
                     // Update the edge paint and stroke transformers for the current edge
                     renderContext.setEdgeDrawPaintTransformer(v -> {
-                        if (checkIfEdgeExist(v, animatedEdges)) {
+                        if (checkIfEdgeExistByWeight(v, animatedEdges)) {
                             return new Color(128, 0, 0, 64);
                         } else {
                             if (currentEdge.getWeight() == v.getWeight()) {
@@ -145,8 +155,9 @@ public class TSPVisualization {
                         }
                         return null;
                     });
+
                     renderContext.setEdgeStrokeTransformer(e -> {
-                        if (checkIfEdgeExist(e, animatedEdges)) {
+                        if (checkIfEdgeExistByWeight(e, animatedEdges)) {
                             return new BasicStroke(1.0f);
                         }
                         return null;
@@ -171,9 +182,18 @@ public class TSPVisualization {
     }
 
 
-    private static boolean checkIfEdgeExist(Edge e, HashSet<Edge> edges) {
+    private static boolean checkIfEdgeExistByWeight(Edge e, HashSet<Edge> edges) {
         for (Edge edge : edges) {
             if (edge.getWeight() == e.getWeight()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean checkIfEdgeExist(Edge e, HashSet<Edge> edges){
+        for (Edge edge : edges) {
+            if (edge.equals(e)) {
                 return true;
             }
         }
@@ -263,7 +283,7 @@ public class TSPVisualization {
                     Edge edge = (Edge) graphEdges.toArray()[index[0]++];
                     // Update the edge paint and stroke transformers for the current edge
                     renderContext.setEdgeDrawPaintTransformer(e -> {
-                        if (checkIfEdgeExist(e, visitedEdges)) {
+                        if (checkIfEdgeExistByWeight(e, visitedEdges)) {
                             //System.out.println("It reached condition edge paint");
                             return color;
                         } else {
@@ -276,7 +296,7 @@ public class TSPVisualization {
                     });
                     renderContext.setEdgeStrokeTransformer(e -> {
                         c[0]++;
-                        if (checkIfEdgeExist(e, visitedEdges)) {
+                        if (checkIfEdgeExistByWeight(e, visitedEdges)) {
                             //System.out.println("It reached condition edge stroke");
                             return new BasicStroke(strokeWidth);
                         }
@@ -329,10 +349,10 @@ public class TSPVisualization {
         this.setVertexStyles(5, 5, Color.black);
         this.setEdgeStyles(1.0f, Color.red);
 
-        this.frame = new JFrame("TSP Visualization");
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.frame.getContentPane().setLayout(new BorderLayout());
 
+        this.frame.getContentPane().remove(this.panel);
         this.panel = new GraphZoomScrollPane(this.vv);
 
         frame.getContentPane().add(this.panel, BorderLayout.CENTER);
@@ -347,6 +367,83 @@ public class TSPVisualization {
         this.frame.setVisible(true);
     }
 
-    
+    public void visualizeTSPTour(Graph graph){
+        this.tspGraph = graph;
+        this.jungGraph = new UndirectedSparseGraph<>();
+        addVerticesToJungGraph(graph, this.jungGraph);
+        addEdgesToJungGraph(graph, this.jungGraph);
+
+        this.setVisualizationViwer(1900, 1000);
+        this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.frame.getContentPane().setLayout(new BorderLayout());
+
+        this.frame.getContentPane().remove(this.panel);
+        this.panel = new GraphZoomScrollPane(vv);
+
+        frame.getContentPane().add(this.panel, BorderLayout.CENTER);
+
+        //Code for transform and picking
+        final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse<String, Number>();
+        this.vv.setGraphMouse(graphMouse);
+        this.vv.addKeyListener(graphMouse.getModeKeyListener());
+
+        RenderContext<Vertex, Edge> renderContext = vv.getRenderContext();
+        Function<Vertex, Shape> vertexShapeTransformer = vertex -> new Ellipse2D.Float(-5, -5, 5, 5);
+        renderContext.setVertexShapeTransformer(vertexShapeTransformer);
+
+        Function<Vertex, String> vertexStringer = v -> String.valueOf(v.getId());
+        renderContext.setVertexLabelTransformer(vertexStringer);
+
+        Renderer<Vertex, Edge> renderer = vv.getRenderer();
+        renderer.getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.N);
+
+        this.frame.pack();
+        this.frame.setLocationRelativeTo(null);
+        this.frame.setVisible(true);
+
+        HashSet<Edge> animatedEdges= new HashSet<>();
+        final int[] currentEdgeIndex = {0};
+        List<Edge> edges= new ArrayList<>(this.jungGraph.getEdges());
+        Timer timer = new Timer(1, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                if (currentEdgeIndex[0] < edges.size()) {
+                    Edge currentEdge = edges.get(currentEdgeIndex[0]);
+
+                    // Update the edge paint and stroke transformers for the current edge
+                    renderContext.setEdgeDrawPaintTransformer(e -> {
+                        if (checkIfEdgeExist(e, animatedEdges)) {
+                            return Color.GREEN;
+                        } else {
+                            if (currentEdge.getSource() == e.getSource()) {
+                                animatedEdges.add(currentEdge);
+                                return Color.GREEN;
+                            }
+                        }
+                        return null;
+                    });
+
+                    renderContext.setEdgeStrokeTransformer(e -> {
+                        if (checkIfEdgeExist(e, animatedEdges)) {
+                            return new BasicStroke(2.0f);
+                        }
+                        return null;
+                    });
+
+                    // Highlight the current edge
+                    vv.repaint();
+                    currentEdgeIndex[0]++;
+                } else {
+                    // Stop the timer once all edges have been animated
+                    ((Timer) event.getSource()).stop();
+                }
+            }
+        });
+        timer.start();
+        while(timer.isRunning()){
+        }
+
+        vv.repaint();
+    }
 
 }
