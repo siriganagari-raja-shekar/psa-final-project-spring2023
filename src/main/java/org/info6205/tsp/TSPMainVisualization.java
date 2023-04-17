@@ -5,6 +5,7 @@ import org.info6205.tsp.algorithm.ChristofidesAlgorithmVisualization;
 import org.info6205.tsp.core.Graph;
 import org.info6205.tsp.core.Vertex;
 import org.info6205.tsp.io.Preprocess;
+import org.info6205.tsp.optimizations.SimulatedAnnealing;
 import org.info6205.tsp.optimizations.ThreeOptSwapOptimization;
 import org.info6205.tsp.util.GraphUtil;
 
@@ -31,18 +32,17 @@ public class TSPMainVisualization {
 
                 List<Vertex> tspTour = christofidesAlgorithm.generateTSPTour();
 
-
-                ThreeOptSwapOptimization threeOptSwapOptimization = new ThreeOptSwapOptimization(tspTour);
-                List<Vertex> optimizedThreeOptTour = threeOptSwapOptimization.getOptimumTour();
-
-
-                double threeOptTourCost = GraphUtil.getTotalCostOfTour(optimizedThreeOptTour);
-                System.out.println("Three opt tour cost: " + threeOptTourCost);
+                SimulatedAnnealing sa= new SimulatedAnnealing(tspTour, 51200000, 3200, 0.5);
+                List<Vertex> saTour= sa.optimize();
 
 
-                if(bestCostYet > GraphUtil.getTotalCostOfTour(optimizedThreeOptTour)){
-                    bestTourYet = optimizedThreeOptTour;
-                    bestCostYet = GraphUtil.getTotalCostOfTour(optimizedThreeOptTour);
+                double saTourCost = GraphUtil.getTotalCostOfTour(saTour);
+                System.out.println("Simulated Annealing TSP tour cost: " + saTourCost);
+
+
+                if(bestCostYet > GraphUtil.getTotalCostOfTour(saTour)){
+                    bestTourYet = saTour;
+                    bestCostYet = GraphUtil.getTotalCostOfTour(saTour);
                 }
             }
 

@@ -1,10 +1,7 @@
 package org.info6205.tsp.visualization;
 
 import com.google.common.base.Function;
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
-import edu.uci.ics.jung.algorithms.layout.FRLayout2;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
@@ -36,8 +33,14 @@ public class TSPVisualization {
 
     GraphZoomScrollPane panel;
 
-    Layout<Vertex, Edge> layout;
+    KKLayout<Vertex, Edge> layout;
 
+    Double mstCost=0.0;
+
+    Double eulerianCost=0.0;
+
+    Double tspCost=0.0;
+    Double optimizedTourCost= 0.0;
 
 
     public TSPVisualization(final Graph tspGraph, final int width,  final int height){
@@ -56,7 +59,7 @@ public class TSPVisualization {
 
         this.panel = new GraphZoomScrollPane(vv);
 
-        frame.getContentPane().add(panel, BorderLayout.CENTER);
+        frame.getContentPane().add(panel, BorderLayout.NORTH);
 
         //Code for transform and picking
         final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse<String, Number>();
@@ -70,11 +73,13 @@ public class TSPVisualization {
 
     public void setVisualizationViwer(final int width,  final int hieght){
         this.layout= new KKLayout<>(jungGraph);
+        this.layout.setMaxIterations(1000);
         this.layout.setSize(new Dimension(width, hieght));
         this.layout.setInitializer(new RandomLocationTransformer<>(new Dimension(width, hieght)));
         this.layout.initialize();
         this.vv = new VisualizationViewer<>(layout);
         vv.setPreferredSize(new Dimension(width, hieght));
+        this.setVertexStyles(5, 5, Color.black);
     }
 
     public void setVertexStyles(final int width, final int height, final Color COLOR ){
@@ -118,7 +123,8 @@ public class TSPVisualization {
         }
     }
 
-    public boolean visualizeMST() {
+    public boolean visualizeMST(Double cost) {
+        addOverlay(this.mstCost, this.eulerianCost, this.tspCost, this.optimizedTourCost);
         //get render context from the visualization viewer
         RenderContext<Vertex, Edge> renderContext = vv.getRenderContext();
         Function<Vertex, Shape> vertexShapeTransformer = vertex -> new Ellipse2D.Float(-5, -5, 5, 5);
@@ -177,6 +183,8 @@ public class TSPVisualization {
         timer.start();
         while(timer.isRunning()){
         }
+        this.mstCost = cost;
+
         System.out.println("MST Timer stopped");
         return true;
     }
@@ -269,7 +277,7 @@ public class TSPVisualization {
         return false;
     }
 
-    public edu.uci.ics.jung.graph.Graph<Vertex, Edge> highlightEdges(Collection<Edge> graphEdges, Color color, float strokeWidth) {
+    public edu.uci.ics.jung.graph.Graph<Vertex, Edge> highlightEdges(Collection<Edge> graphEdges, Color color, float strokeWidth, double cost) {
         HashSet<Edge> visitedEdges = new HashSet<>();
         // get render context from the visualization viewer
         RenderContext<Vertex, Edge> renderContext = vv.getRenderContext();
@@ -315,6 +323,7 @@ public class TSPVisualization {
         timer.start();
 
         while (timer.isRunning()){}
+        this.eulerianCost = cost;
         System.out.println("Highlighting edges done"+ c[0]);
         return jungGraph;
     }
@@ -346,6 +355,7 @@ public class TSPVisualization {
 
     public void generateMultiGraph(){
         this.setVisualizationViwer(1900, 1000);
+        this.addOverlay(this.mstCost, this.eulerianCost, this.tspCost, this.optimizedTourCost);
         this.setVertexStyles(5, 5, Color.black);
         this.setEdgeStyles(1.0f, Color.red);
 
@@ -367,13 +377,14 @@ public class TSPVisualization {
         this.frame.setVisible(true);
     }
 
-    public void visualizeTSPTour(Graph graph){
+    public void visualizeTSPTour(Graph graph, Color color, final String tourType, double cost){
         this.tspGraph = graph;
         this.jungGraph = new UndirectedSparseGraph<>();
         addVerticesToJungGraph(graph, this.jungGraph);
         addEdgesToJungGraph(graph, this.jungGraph);
 
         this.setVisualizationViwer(1900, 1000);
+        addOverlay(this.mstCost, this.eulerianCost, this.tspCost, this.optimizedTourCost);
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.frame.getContentPane().setLayout(new BorderLayout());
 
@@ -413,11 +424,11 @@ public class TSPVisualization {
                     // Update the edge paint and stroke transformers for the current edge
                     renderContext.setEdgeDrawPaintTransformer(e -> {
                         if (checkIfEdgeExist(e, animatedEdges)) {
-                            return Color.GREEN;
+                            return color;
                         } else {
                             if (currentEdge.getSource() == e.getSource()) {
                                 animatedEdges.add(currentEdge);
-                                return Color.GREEN;
+                                return color;
                             }
                         }
                         return null;
@@ -443,7 +454,110 @@ public class TSPVisualization {
         while(timer.isRunning()){
         }
 
+        if(tourType.equalsIgnoreCase("opt")){
+            this.optimizedTourCost= cost;
+        }
+        if(tourType.equalsIgnoreCase("tsp")){
+            this.tspCost = cost;
+        }
+        this.addOverlay(this.mstCost, this.eulerianCost, this.tspCost, this.optimizedTourCost);
+        vv.revalidate();
         vv.repaint();
     }
 
+    public void addOverlay(double mstCost, double eulerianCost, double tspCost, double optimizedTourCost){
+        vv.addPostRenderPaintable(new VisualizationViewer.Paintable(){
+            int y;
+            Font font;
+            Font plainFont;
+            FontMetrics metrics;
+            int swidth;
+            int sheight;
+
+            public void paint(Graphics g) {
+                Dimension d = vv.getSize();
+                if(font == null) {
+                    font = new Font(g.getFont().getName(), Font.BOLD, 14);
+                    plainFont= new Font(g.getFont().getName(), Font.PLAIN, 14);
+                    metrics = g.getFontMetrics(font);
+                    swidth = 350;
+                    sheight = metrics.getMaxAscent()+metrics.getMaxDescent();
+                }
+                g.setColor(new Color(128, 128, 128, 200)); // Change the values to set the desired color and alpha (transparency)
+                g.fillRect(0, 0, swidth , d.height);
+
+                g.setColor(Color.RED);
+                g.setFont(font);
+                g.drawString("Christofides Visualization", (swidth-(metrics.stringWidth("Christofides Visualization")))/2, 40);
+                g.setFont(plainFont);
+                g.setColor(Color.black);
+                g.drawString("* Scroll mouse wheel to Zoom", 10, 80);
+                g.drawString("* Right click and move to pane the UI", 10, 120);
+                g.drawString("* Press P to pick and move vertices", 10, 160);
+                g.drawString("* Press T for zoom and pane functionality", 10, 200);
+
+                //MST tooltips
+                g.setColor(Color.BLACK);
+                g.setFont(font);
+                g.drawString("MST Tool tips & Metrics", 10, 260);
+                //Tool tip for MST Edges
+                g.setColor(Color.RED);
+                g.drawLine(10, 300, 60, 300);
+                g.setFont(plainFont);
+                g.drawString("MST Edges:", 80, 300);
+                g.setFont(font);
+                String mstCostStr= mstCost == 0.0? "Not computed": Double.toString(mstCost);
+                g.drawString("Cost of MST: "+mstCostStr, 10, 340);
+                //Tool tip for odd degree vertices
+                int circleDiameter = 15;
+                int circleX = 10;
+                int circleY = 365;
+                g.setColor(Color.CYAN);
+                g.fillOval(circleX, circleY, circleDiameter, circleDiameter);
+                g.setFont(plainFont);
+                int textX = circleX + circleDiameter + 10;
+                int textY = 380;
+                g.drawString("Odd degree vertices", textX, textY);
+
+                //Tool tip for Perfect matching
+                g.setFont(font);
+                g.setColor(Color.black);
+                g.drawString("Multigraph Tool tips", 10, 440);
+                g.setColor(Color.CYAN);
+                g.drawLine(10, 480, 60, 480);
+                g.setFont(plainFont);
+                g.drawString("Edges from perfect matching", 80, 480);
+
+                //Tool tip for Eulers tour
+                g.setFont(font);
+                g.setColor(Color.black);
+                g.drawString("Eulerian Tour Tool tips & Metrics", 10, 540);
+                g.setColor(Color.MAGENTA);
+                g.drawLine(10, 580, 60, 580);
+                g.setFont(plainFont);
+                g.drawString("Eulerian Tour", 80, 580);
+                g.setFont(font);
+                String eulerianCostStr= eulerianCost == 0.0? "Not computed": Double.toString(eulerianCost);
+                g.drawString("Cost of Eulerian Tour: "+eulerianCostStr, 10, 620);
+                g.setColor(Color.BLUE);
+                g.drawLine(10, 660, 60, 660);
+                g.setFont(plainFont);
+                g.drawString("Final TSP Tour", 80, 660);
+                g.setFont(font);
+                String tspCostStr= tspCost == 0.0? "Not computed": Double.toString(tspCost);
+                g.drawString("Cost of TSP Tour: "+tspCostStr, 10, 700);
+                g.setColor(Color.GREEN);
+                g.drawLine(10, 740, 60, 740);
+                g.setFont(plainFont);
+                g.drawString("Optimized TSP Tour by SA", 80, 740);
+                g.setFont(font);
+                String optTspCost= optimizedTourCost == 0.0? "Not computed": Double.toString(optimizedTourCost);
+                g.drawString("Cost of Optimized TSP Tour: "+optTspCost, 10, 780);
+
+            }
+            public boolean useTransform() {
+                return false;
+            }
+        });
+    }
 }
