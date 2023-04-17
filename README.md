@@ -20,7 +20,7 @@ We have implemented the following algorithms for solving TSP:
 
 ### Console output
 - Run the **TSPMain.java** class from the *driver* package to run Christofides Algorithm 
-- Run any **TSPMainWith*.java** class from the *driver* package to run Christofides Algorithm along with your desired optimization
+- Run any **TSPMainWith\*.java** class from the *driver* package to run Christofides Algorithm along with your desired optimization
 
 For every driver class there is a corresponding csv file generated in the root directory giving the best tour that has been found. It is in the initial format of the input with the crimeID modified to only include the last 5 digits.
 
