@@ -45,17 +45,17 @@ public class AntColonyOptimization {
     /**
      * To adjust the impact of distance in probability matrix
      */
-    public static double alpha = 1.0;
+    public double alpha;
 
     /**
      * To adjust the impact of reward in probability matrix
      */
-    public static double beta = 2.0;
+    public double beta;
 
     /**
      * To adjust the decay rate of the reward matrix
      */
-    public static double decay = 0.7;
+    public double decay;
 
     /**
      * The list of vertices
@@ -74,8 +74,8 @@ public class AntColonyOptimization {
         rewardMartrix = new double[length][length];
         this.edges = new ArrayList<>(graph.getAllEdges().stream().sorted().collect(Collectors.toList()));
         this.graph = graph;
-//        this.alpha = 24.0;
-//        this.beta = 25.0;
+        this.alpha = 24.0;
+        this.beta = 25.0;
     }
 
     /**
@@ -88,10 +88,12 @@ public class AntColonyOptimization {
         initializeProbabilityMatrix();
 
         double minTour = Double.MAX_VALUE;
+        double minBatchTour = Double.MAX_VALUE;
         Random random = new Random();
         List<Vertex> minCircuit = new ArrayList<>();
+        List<Vertex> minBatchCircuit = new ArrayList<>();
         double prevPheromoneTrail = 0.0;
-        for (int i = 0; i < 5000; i++) {
+        for (int i = 1; i <= 200; i++) {
             List<Integer> tour = calculateAntColonyTour(random.nextInt(length - 1));
             List<Vertex> tourVertices = new ArrayList<>();
             for (int v : tour) {
@@ -101,7 +103,22 @@ public class AntColonyOptimization {
             double tourCost = GraphUtil.getTotalCostOfTour(tourVertices);
             minTour = minTour > tourCost ? tourCost : minTour;
             minCircuit = tourVertices;
-            updateRewards(tourCost, prevPheromoneTrail, tourVertices);
+            if (minBatchTour > tourCost) {
+                minBatchTour = tourCost;
+                minBatchCircuit = tourVertices;
+            }
+            if (i % 10 == 0) {
+                TwoOptSwapOptimization twoOptSwapOptimization = new TwoOptSwapOptimization(minBatchCircuit);
+                minBatchCircuit = twoOptSwapOptimization.getOptimumTour();
+
+                if (GraphUtil.getTotalCostOfTour(minBatchCircuit) < minTour) {
+                    minTour = minBatchTour;
+                    minCircuit = minBatchCircuit;
+                }
+
+                updateRewards(minBatchTour, prevPheromoneTrail, minBatchCircuit);
+                minBatchTour = Double.MAX_VALUE;
+            }
             initializeProbabilityMatrix();
             prevPheromoneTrail = tourCost;
         }
@@ -138,7 +155,7 @@ public class AntColonyOptimization {
      * @param unvisited list of unvisited nodes
      * @param source the entry point of the circuit
      */
-    private void recalculateProbabilityMatrix(List<Integer> unvisited, int source) {
+    private void recalculateProbabilityMatrix(Set<Integer> unvisited, int source) {
         double totalInverseRewardDistance = 0.0;
         for (int i: unvisited) {
             double inverseDistance = Math.pow(1/distanceMatrix[source][i], alpha) * Math.pow(rewardMartrix[source][i], beta);
@@ -157,7 +174,7 @@ public class AntColonyOptimization {
      */
     private List<Integer> calculateAntColonyTour(int source) {
         List<Integer> res = new ArrayList<>();
-        List<Integer> unvisited = new ArrayList<>();
+        Set<Integer> unvisited = new HashSet<>();
         for (int i = 0; i < length; i++) if(i != source) unvisited.add(i);
         int iterNode = source;
         res.add(iterNode);
