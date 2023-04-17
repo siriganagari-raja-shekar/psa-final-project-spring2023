@@ -26,7 +26,7 @@ public class TSPMainWithThreeOpt {
 
             List<Vertex> bestTourYet = null;
             double bestCostYet = Double.MAX_VALUE;
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 5; i++) {
 
                 List<Vertex> tspTour = christofidesAlgorithm.generateTSPTour();
 
