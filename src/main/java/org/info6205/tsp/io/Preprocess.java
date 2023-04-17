@@ -1,11 +1,9 @@
 package org.info6205.tsp.io;
 
-import org.info6205.tsp.TSPMain;
 import org.info6205.tsp.core.Graph;
 import org.info6205.tsp.core.UndirectedGraph;
 import org.info6205.tsp.core.Vertex;
 
-import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.ArrayList;

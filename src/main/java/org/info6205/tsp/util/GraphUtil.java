@@ -108,4 +108,15 @@ public class GraphUtil {
         }
         return graph;
     }
+
+    public static String printTSPTour(List<Vertex> tspTour, Map<Long, String> nodeMap){
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < tspTour.size(); i++) {
+            String id = nodeMap.get(tspTour.get(i).getId());
+            String modifiedId = id.substring(id.length()-5);
+            sb.append(modifiedId+"-->");
+        }
+        sb.delete(sb.length()-3, sb.length());
+        return sb.toString();
+    }
 }

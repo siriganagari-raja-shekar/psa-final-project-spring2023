@@ -1,4 +1,4 @@
-package org.info6205.tsp;
+package org.info6205.tsp.driver;
 
 import org.info6205.tsp.algorithm.ChristofidesAlgorithm;
 import org.info6205.tsp.algorithm.ChristofidesAlgorithmVisualization;

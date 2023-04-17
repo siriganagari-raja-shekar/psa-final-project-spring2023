@@ -15,7 +15,7 @@ public class PostProcess {
         rawLines = preprocess.getRawLines();
     }
 
-    public List<String> start(List<Vertex> circuit) {
+    public List<String> start(List<Vertex> circuit, String outputFilePath) {
         List<String> result = new ArrayList<>();
         result.add("crimeID,longitude,latitude");
         for(Vertex vertex: circuit) {
@@ -23,7 +23,7 @@ public class PostProcess {
             result.add(line);
         }
 
-        writeToFile("Output.csv", result);
+        writeToFile(outputFilePath, result);
         return result;
     }
 
